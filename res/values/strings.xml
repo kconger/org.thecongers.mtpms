@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">iTPMS</string>
+    
+    <string name="action_settings">Settings</string>
+    <string name="front_alert_settings_title">Front Alert Settings</string>
+    <string name="pref_front_low_pressure_name">Front Low Pressure</string>
+    <string name="pref_front_low_pressure_summary">Front Low Pressure Alert Threshold</string>
+    <string name="pref_front_high_pressure_name">Front High Pressure</string>
+    <string name="pref_front_high_pressure_summary">Front High Pressure Alert Threshold</string>
+    
+    <string name="rear_alert_settings_title">Rear Alert Settings</string>
+    <string name="pref_rear_low_pressure_name">Rear Low Pressure</string>
+    <string name="pref_rear_low_pressure_summary">Rear Low Pressure Alert Threshold</string>    
+    <string name="pref_rear_high_pressure_name">Rear High Pressure</string>
+    <string name="pref_rear_high_pressure_summary">Rear High Pressure Alert Threshold</string>
+
+</resources>

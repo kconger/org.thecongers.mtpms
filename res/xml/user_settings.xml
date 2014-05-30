@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/front_alert_settings_title" >
+    	<EditTextPreference
+        	android:title="@string/pref_front_low_pressure_name"
+            android:summary="@string/pref_front_low_pressure_summary"
+            android:defaultValue="30"
+            android:key="prefFrontLowPressure"
+            />
+    	<EditTextPreference
+        	android:title="@string/pref_front_high_pressure_name"
+            android:summary="@string/pref_front_high_pressure_summary"
+            android:defaultValue="46"
+            android:key="prefFrontHighPressure"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/rear_alert_settings_title" >
+    	<EditTextPreference
+        	android:title="@string/pref_rear_low_pressure_name"
+            android:summary="@string/pref_rear_low_pressure_summary"
+            android:defaultValue="30"
+            android:key="prefRearLowPressure"
+            />
+    	<EditTextPreference
+        	android:title="@string/pref_rear_high_pressure_name"
+            android:summary="@string/pref_rear_high_pressure_summary"
+            android:defaultValue="46"
+            android:key="prefRearHighPressure"
+            />  	
+    </PreferenceCategory>
+
+</PreferenceScreen>
