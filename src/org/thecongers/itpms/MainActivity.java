@@ -74,13 +74,17 @@ public class MainActivity extends Activity {
                 	hexData[i]=String.format("%02X", readBuf[i]);
                 	sbhex.append(hexData[i]);
                 }
+                // Get sensor position
+                int position = Integer.parseInt(hexData[3],16);
                 // Get sensor ID
                 StringBuilder sensorID = new StringBuilder();
                 sensorID.append(hexData[4]);
                 sensorID.append(hexData[5]);
                 sensorID.append(hexData[6]);
                 sensorID.append(hexData[7]);
-                
+                // Get temperature
+                int tempC = Integer.parseInt(hexData[8],16);
+                double tempF = (9.0/5.0) * tempC + 32.0;              
                 // Get tire pressure
                 int psi = Integer.parseInt(hexData[9],16);
                 // Get pressure thresholds
@@ -88,16 +92,15 @@ public class MainActivity extends Activity {
                 int fHighPsi = Integer.parseInt(sharedPrefs.getString("prefFrontHighPressure", "46"));
                 int rLowPsi = Integer.parseInt(sharedPrefs.getString("prefRearLowPressure", "30"));
                 int rHighPsi = Integer.parseInt(sharedPrefs.getString("prefRearHighPressure", "46"));
-                
                 // Get battery voltage
-                int battery = Integer.parseInt(hexData[10],16) * 2;
-                double voltage = battery * 0.01;
-                
-                //Get tire temperature ???
-                                
+                int battery = Integer.parseInt(hexData[10],16) / 50;
+                double voltage = battery;
+                // Get checksum
+                String checksum = hexData[11];
+        
                 // Display
-                txtOutput.append("Sensor ID: " + sensorID.toString() + ", Pressure: " + String.valueOf(psi) + ", Voltage: " + String.valueOf(voltage) + ", Data: " + sbhex.toString() + "\n");
-            	Log.d(TAG, "Sensor ID: " + sensorID.toString() + ", Pressure: " + String.valueOf(psi) + ", Voltage: " + String.valueOf(voltage) + ", Data: " + sbhex.toString() +  ", Bytes:" + msg.arg1);
+                txtOutput.append("Sensor ID: " + sensorID.toString() + ", Sensor Position: " + String.valueOf(position) + ", Temperature(F): " + String.valueOf(tempF) + ", Pressure: " + String.valueOf(psi) + ", Voltage: " + String.valueOf(voltage) + ", Data: " + sbhex.toString() + "\n");
+            	Log.d(TAG, "Sensor ID: " + sensorID.toString() + ", Sensor Position: " + String.valueOf(position) + ", Temperature(F): " + String.valueOf(tempF) + ", Pressure: " + String.valueOf(psi) + ", Voltage: " + String.valueOf(voltage) + ", Data: " + sbhex.toString() +  ", Bytes:" + msg.arg1);
             	break;
     		}
         };
