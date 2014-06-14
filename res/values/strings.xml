@@ -4,6 +4,41 @@
     <string name="app_name">iTPMS</string>
     
     <string name="action_settings">Settings</string>
+    
+    <string name="units_title">Unit Display</string>
+    <string name="pref_tempf_name">Temperature Unit</string>
+    <string-array name="tempf_array">
+        <item name="1">Fahrenheit</item>
+        <item name="2">Celsius</item>
+    </string-array>
+    <string-array name="tempf_arrayValues">
+        <item name="1">0</item>
+        <item name="2">1</item>
+    </string-array>
+    
+    <string name="pref_pressuref_name">Pressure Unit</string>
+    <string-array name="pressuref_array">
+        <item name="1">psi</item>
+        <item name="2">KPa</item>
+        <item name="3">Kg-f</item>
+        <item name="4">Bar</item>
+    </string-array>
+    <string-array name="pressuref_arrayValues">
+        <item name="1">0</item>
+        <item name="2">1</item>
+        <item name="3">2</item>
+        <item name="4">3</item>
+    </string-array>
+    <string name="notification_settings_title">Notification Settings</string>
+    <string name="pref_sound_name">Sound</string>
+    <string name="pref_sound_summary">Notification Sound</string>
+    <string name="pref_notificationSound_name">Sound</string>
+    <string name="pref_notificationSound_summary">Enable Sound</string>
+    <string name="pref_notificationVibrate_name">Vibration</string>
+    <string name="pref_notificationVibrate_summary">Enable Vibration</string>
+    <string name="pref_notificationLED_name">LED</string>
+    <string name="pref_notificationLED_summary">Enable LED</string>
+    
     <string name="front_alert_settings_title">Front Alert Settings</string>
     <string name="pref_front_low_pressure_name">Front Low Pressure</string>
     <string name="pref_front_low_pressure_summary">Front Low Pressure Alert Threshold</string>

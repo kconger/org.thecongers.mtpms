@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,8 +14,14 @@ import org.thecongers.itpms.UserSettingActivity;
 import com.caverock.androidsvg.SVG;
 import com.caverock.androidsvg.SVGParseException;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -25,6 +30,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,19 +41,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
  
 public class MainActivity extends Activity {
-  private static final String TAG = "iTPMS";
-   
-  
-  TextView txtOutput;
-  Handler h;
-   
-  final int RECIEVE_MESSAGE = 1;		// Status  for Handler
+  final int RECIEVE_MESSAGE = 1;		// Status for Handler
   private static final int SETTINGS_RESULT = 1;
   private SharedPreferences sharedPrefs;
+  private NotificationManager notificationManager;
+  private RelativeLayout mainLayout;
+  private ObjectAnimator colorFade;
   
   private BluetoothAdapter btAdapter = null;
   private BluetoothSocket btSocket = null;
@@ -58,8 +62,11 @@ public class MainActivity extends Activity {
   // SPP UUID service
   private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
  
+  private static final String TAG = "iTPMS";
   // MAC-address of iTPMS
   private String address;
+  TextView txtOutput;
+  Handler h;
    
   /** Called when the activity is first created. */
   @SuppressLint("HandlerLeak")
@@ -68,20 +75,41 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
     sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
     setContentView(R.layout.activity_main);
-    
+    mainLayout = (RelativeLayout) findViewById(R.id.relativeLayout1);
     // Keep screen on
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     
+    String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
+    String pressureUnit = "psi";
+	if (pressureFormat.contains("1")) {
+		// KPa
+		pressureUnit = "KPa";
+	} else if (pressureFormat.contains("2")){
+		// Kg-f
+		pressureUnit = "Kg-f";
+	} else if (pressureFormat.contains("3")){
+		// Bar
+		pressureUnit = "Bar";
+	}
+	String temperatureUnit = "C";
+	if (sharedPrefs.getString("preftempf", "0").contains("0")) {
+		// F
+		temperatureUnit = "F";
+	}
     String svgUI = readRawTextFile(this, R.raw.ui);
-    String svgFUILive = svgUI.replaceAll("PP", "**");
-    svgFUILive = svgFUILive.replaceAll("TTT", "***");
-    svgFUILive = svgFUILive.replaceAll("VVV", "***");
+    String svgFUILive = svgUI.replaceAll("PP", "--");
+    svgFUILive = svgFUILive.replaceAll("TTT", "---");
+    svgFUILive = svgFUILive.replaceAll("VVV", "---");
+    svgFUILive = svgFUILive.replaceAll("PSI", pressureUnit);
+    svgFUILive = svgFUILive.replaceAll("TU", temperatureUnit);
     final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
     imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     
-    String svgRUILive = svgUI.replaceAll("PP", "**");
-    svgRUILive = svgRUILive.replaceAll("TTT", "***");
-    svgRUILive = svgRUILive.replaceAll("VVV", "***");
+    String svgRUILive = svgUI.replaceAll("PP", "--");
+    svgRUILive = svgRUILive.replaceAll("TTT", "---");
+    svgRUILive = svgRUILive.replaceAll("VVV", "---");
+    svgRUILive = svgRUILive.replaceAll("PSI", pressureUnit);
+    svgRUILive = svgRUILive.replaceAll("TU", temperatureUnit);
     final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
     imageView2.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     try
@@ -96,7 +124,6 @@ public class MainActivity extends Activity {
     catch(SVGParseException e)
     {}
    
- 
     txtOutput = (TextView) findViewById(R.id.txtOutput);
     
     h = new Handler() {
@@ -104,7 +131,7 @@ public class MainActivity extends Activity {
     		switch (msg.what) {
             case RECIEVE_MESSAGE:	
             	// Message recieved
-            	Log.d(TAG, "Sensor Data Recieved");
+            	Log.d(TAG, "Serial Message Recieved");
             	byte[] readBuf = (byte[]) msg.obj;
             	
             	// Convert to hex
@@ -124,57 +151,147 @@ public class MainActivity extends Activity {
                 sensorID.append(hexData[5]);
                 sensorID.append(hexData[6]);
                 sensorID.append(hexData[7]);
-                // Get temperature
-                int tempC = Integer.parseInt(hexData[8],16) - 50;
-                double tempF = (9.0/5.0) * tempC + 32.0;              
-                // Get tire pressure
-                int psi = Integer.parseInt(hexData[9],16);
-                // Get pressure thresholds
-                int fLowPsi = Integer.parseInt(sharedPrefs.getString("prefFrontLowPressure", "30"));
-                int fHighPsi = Integer.parseInt(sharedPrefs.getString("prefFrontHighPressure", "46"));
-                int rLowPsi = Integer.parseInt(sharedPrefs.getString("prefRearLowPressure", "30"));
-                int rHighPsi = Integer.parseInt(sharedPrefs.getString("prefRearHighPressure", "46"));
-                // Get battery voltage
-                int battery = Integer.parseInt(hexData[10],16) / 50;
-                double voltage = battery;
-                // Get checksum
-                String checksum = hexData[11];
-                Log.d(TAG, "Sensor ID: " + sensorID.toString() + ", Sensor Position: " + position + ", Temperature(F): " + String.valueOf(tempF) + ", Pressure: " + String.valueOf(psi) + ", Voltage: " + String.valueOf(voltage) + ", Checksum: " + checksum +", Data: " + sbhex.toString() +  ", Bytes:" + msg.arg1);
-                if (sensorID.toString().contains("1E9D533E")){
-                	String svgFUI = readRawTextFile(MainActivity.this, R.raw.ui);
-                    String svgFUILive = svgFUI.replaceAll("PP", String.valueOf(psi));
-                    svgFUILive = svgFUILive.replaceAll("TTT", String.valueOf(tempF));
-                    svgFUILive = svgFUILive.replaceAll("VVV", String.valueOf(voltage));
-                    try
-                    {
-                       SVG svg = SVG.getFromString(svgFUILive);
-                       Drawable drawable = new PictureDrawable(svg.renderToPicture());
-                       imageView.setImageDrawable(drawable);
-                    }
-                    catch(SVGParseException e)
-                    {}
-                	
-                } else if (sensorID.toString().contains("1E9D4899")){
-                	Log.d(TAG, "Matched");
-                	String svgRUI = readRawTextFile(MainActivity.this, R.raw.ui);
-                    String svgRUILive = svgRUI.replaceAll("PP", String.valueOf(psi));
-                    svgRUILive = svgRUILive.replaceAll("TTT", String.valueOf(tempF));
-                    svgRUILive = svgRUILive.replaceAll("VVV", String.valueOf(voltage));
-                    try
-                    {
-                       SVG svg = SVG.getFromString(svgRUILive);
-                       Drawable drawable = new PictureDrawable(svg.renderToPicture());
-                       imageView2.setImageDrawable(drawable);
-                    }
-                    catch(SVGParseException e)
-                    {}
-                	
-                }
-        
-                // Display
                 
-                txtOutput.append("Sensor ID: " + sensorID.toString() + ", Sensor Position: " + position + ", Temperature(F): " + String.valueOf(tempF) + ", Pressure: " + String.valueOf(psi) + ", Voltage: " + String.valueOf(voltage) + ", Data: " + sbhex.toString() + "\n");
-            	break;
+                try{
+                	// Get temperature
+                	int tempC = Integer.parseInt(hexData[8],16) - 50;
+                	double temp = tempC;
+                	String temperatureUnit = "C";
+                    // Get tire pressure
+                    int psi = Integer.parseInt(hexData[9],16);
+                    double pressure = psi;
+                    String pressureUnit = "psi";
+                    // Get battery voltage
+                    int battery = Integer.parseInt(hexData[10],16) / 50;
+                    double voltage = battery;
+                    // Get pressure thresholds
+                    int fLowPressure = Integer.parseInt(sharedPrefs.getString("prefFrontLowPressure", "30"));
+                    int fHighPressure = Integer.parseInt(sharedPrefs.getString("prefFrontHighPressure", "46"));
+                    int rLowPressure = Integer.parseInt(sharedPrefs.getString("prefRearLowPressure", "30"));
+                    int rHighPressure = Integer.parseInt(sharedPrefs.getString("prefRearHighPressure", "46"));
+                	if (sharedPrefs.getString("preftempf", "0").contains("0")) {
+                		// F
+                		double tempF = (9.0/5.0) * tempC + 32.0;
+                		temp = tempF;
+                		temperatureUnit = "F";
+                	}
+                	String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
+                	if (pressureFormat.contains("1")) {
+                		// KPa
+                		pressure = psi * 6.894757293168361;
+                		pressureUnit = "KPa";
+                	} else if (pressureFormat.contains("2")){
+                		// Kg-f
+                		pressure = psi * 0.070306957965539;
+                		pressureUnit = "Kg-f";
+                	} else if (pressureFormat.contains("3")){
+                		// Bar
+                		pressure = psi * 0.0689475729;
+                		pressureUnit = "Bar";
+                	}
+                   
+                    // Get checksum
+                    String checksum = hexData[11];
+                    Log.d(TAG, "Sensor ID: " + sensorID.toString() + ", Sensor Position: " + position + ", Temperature(" + temperatureUnit + "): " + String.valueOf(temp) + ", Pressure(" + pressureUnit + "): " + String.valueOf(pressure) + ", Voltage: " + String.valueOf(voltage) + ", Checksum: " + checksum +", Data: " + sbhex.toString() +  ", Bytes:" + msg.arg1);
+                    if (sensorID.toString().contains("1E9D533E")){
+                    	Log.d(TAG, "Matched");
+                    	int notificationID = 0;
+                    	if (psi <= fLowPressure){
+                        	// Send notification
+                            Notify("iTPMS", "Low front tire pressure!", notificationID);
+                            txtOutput.setText("Low front tire pressure!");
+                            // Fade background in and out
+                            colorFade = ObjectAnimator.ofObject(mainLayout, "backgroundColor", new ArgbEvaluator(), 0xffffffff, android.graphics.Color.RED);
+                            colorFade.setDuration(3000);
+                            colorFade.setRepeatCount(ValueAnimator.INFINITE);
+                            colorFade.setRepeatMode(ValueAnimator.REVERSE);
+                            colorFade.setAutoCancel(true);
+                            colorFade.start();
+                        } else if (psi >= fHighPressure) {
+                        	// Send notification
+                            Notify("iTPMS", "High front tire pressure!", notificationID);
+                            txtOutput.setText("High front tire pressure!"); 
+                            // Fade background in and out
+                            colorFade = ObjectAnimator.ofObject(mainLayout, "backgroundColor", new ArgbEvaluator(), 0xffffffff, android.graphics.Color.RED);
+                            colorFade.setDuration(3000);
+                            colorFade.setRepeatCount(ValueAnimator.INFINITE);
+                            colorFade.setRepeatMode(ValueAnimator.REVERSE);
+                            colorFade.setAutoCancel(true);
+                            colorFade.start();
+                        } else {
+                        	notificationManager.cancel(notificationID);
+                        	colorFade.cancel();
+                        }
+                    	String svgFUI = readRawTextFile(MainActivity.this, R.raw.ui);
+                        String svgFUILive = svgFUI.replaceAll("PP", String.valueOf(pressure));
+                        svgFUILive = svgFUILive.replaceAll("TTT", String.valueOf(temp));
+                        svgFUILive = svgFUILive.replaceAll("VVV", String.valueOf(voltage));
+                        svgFUILive = svgFUILive.replaceAll("PSI", pressureUnit);
+                        svgFUILive = svgFUILive.replaceAll("UUU", temperatureUnit);
+                        try
+                        {
+                           SVG svg = SVG.getFromString(svgFUILive);
+                           svg.setDocumentViewBox(0, 0, svg.getDocumentWidth(),
+                                   svg.getDocumentHeight());
+                           Drawable drawable = new PictureDrawable(svg.renderToPicture());
+                           imageView.setImageDrawable(drawable);
+                        }
+                        catch(SVGParseException e)
+                        {}
+                    	
+                    } else if (sensorID.toString().contains("1E9D4899")){
+                    	Log.d(TAG, "Matched");
+                    	int notificationID = 1;
+                    	if (psi <= rLowPressure){
+                        	// Send notification
+                            Notify("iTPMS", "Low rear tire pressure!", notificationID);
+                            txtOutput.setText("Low rear tire pressure!");
+                            // Fade background in and out
+                            colorFade = ObjectAnimator.ofObject(mainLayout, "backgroundColor", new ArgbEvaluator(), 0xffffffff, android.graphics.Color.RED);
+                            colorFade.setDuration(3000);
+                            colorFade.setRepeatCount(ValueAnimator.INFINITE);
+                            colorFade.setRepeatMode(ValueAnimator.REVERSE);
+                            colorFade.setAutoCancel(true);
+                            colorFade.start();
+                        } else if (psi >= rHighPressure){
+                        	// Send notification
+                            Notify("iTPMS", "High rear tire pressure!", notificationID);
+                            txtOutput.setText("High rear tire pressure!");
+                            // Fade background in and out
+                            colorFade = ObjectAnimator.ofObject(mainLayout, "backgroundColor", new ArgbEvaluator(), 0xffffffff, android.graphics.Color.RED);
+                            colorFade.setDuration(3000);
+                            colorFade.setRepeatCount(ValueAnimator.INFINITE);
+                            colorFade.setRepeatMode(ValueAnimator.REVERSE);
+                            colorFade.setAutoCancel(true);
+                            colorFade.start();
+                        } else {
+                        	notificationManager.cancel(notificationID);
+                        	colorFade.cancel();
+                        }
+                    	String svgRUI = readRawTextFile(MainActivity.this, R.raw.ui);
+                        String svgRUILive = svgRUI.replaceAll("PP", String.valueOf(psi));
+                        svgRUILive = svgRUILive.replaceAll("TTT", String.valueOf(temp));
+                        svgRUILive = svgRUILive.replaceAll("VVV", String.valueOf(voltage));
+                        svgRUILive = svgRUILive.replaceAll("PSI", pressureUnit);
+                        svgRUILive = svgRUILive.replaceAll("UUU", temperatureUnit);
+                        try
+                        {
+                           SVG svg = SVG.getFromString(svgRUILive);
+                           svg.setDocumentViewBox(0, 0, svg.getDocumentWidth(),
+                                   svg.getDocumentHeight());
+                           Drawable drawable = new PictureDrawable(svg.renderToPicture());
+                           imageView2.setImageDrawable(drawable);
+                        }
+                        catch(SVGParseException e)
+                        {}
+                    	
+                    }
+                }
+                catch(NumberFormatException e){
+                	Log.d(TAG, "Malformed message");
+                }
+                
+                break;
     		}
         };
 	};
@@ -188,7 +305,7 @@ public class MainActivity extends Activity {
 		   for (BluetoothDevice device : pairedDevices) {
 			   if (device.getName().contains("iTPMS")) {
 				   address = device.getAddress();
-				   Log.d(TAG, "Device found: " + device.getName() + " " + device.getAddress());
+				   Log.d(TAG, "Paired iTPMS found: " + device.getName() + " " + device.getAddress());
 				   
 			   }
 		   }
@@ -210,7 +327,6 @@ public class MainActivity extends Activity {
   @Override
   public void onResume() {
     super.onResume();
- 
     Log.d(TAG, "...onResume - try connect...");
    
     if (address != null){
@@ -259,8 +375,7 @@ public class MainActivity extends Activity {
     	
     } else {
     	Toast.makeText(MainActivity.this,
-				"No iTPMS found paired!",
-				Toast.LENGTH_LONG).show();
+				"No iTPMS paired!",Toast.LENGTH_LONG).show();
     }
     
   }
@@ -285,7 +400,7 @@ public class MainActivity extends Activity {
       errorExit("Fatal Error", "Bluetooth not supported");
     } else {
       if (btAdapter.isEnabled()) {
-        Log.d(TAG, "...Bluetooth ON...");
+        Log.d(TAG, "Bluetooth is on");
       } else {
         //Prompt user to turn on Bluetooth
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -390,4 +505,42 @@ public class MainActivity extends Activity {
 	    }
 	    return text.toString();
 	}
+//Send Notification
+  private void Notify(String notificationTitle, String notificationMessage, int notificationID) 
+  {
+  	  notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+  	  Intent notificationIntent = new Intent(this, MainActivity.class);
+  	  PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+  	    	    notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+  	  
+  	  String alertURI = sharedPrefs.getString("funcZeroSound","content://settings/system/notification_sound");
+  	  Uri soundURI = Uri.parse(alertURI);
+  	  // Build notification
+  	  Notification.Builder builder = new Notification.Builder(this);
+  	  builder.setContentTitle(notificationTitle)
+        	.setContentText(notificationMessage)
+        	.setSmallIcon(R.drawable.ic_launcher)
+        	.setContentIntent(pendingIntent);
+  	  // Check for LED enabled
+  	  if (sharedPrefs.getBoolean("prefNotificationLED", true)) {
+  		  builder.setLights(android.graphics.Color.RED, 1500, 1500);
+  	  }
+  	  // Check for sound enabled
+  	  if (sharedPrefs.getBoolean("prefNotificationSound", true)) {
+  		  builder.setSound(soundURI);
+  	  }
+  	  Notification notification = builder.build();
+  	  // Check for vibration enabled
+  	  if (sharedPrefs.getBoolean("prefNotificationVibrate", true)) {
+  		  notification.defaults|= Notification.DEFAULT_VIBRATE;
+  	  }
+      // Make alert repeat until read
+      notification.flags |= Notification.FLAG_INSISTENT;
+      // Hide notification after its been selected
+  	  notification.flags |= Notification.FLAG_AUTO_CANCEL;
+  	  notification.priority = Notification.PRIORITY_MAX;
+  	  // Send notification
+  	  notificationManager.notify(notificationID, notification);
+
+  }
 }

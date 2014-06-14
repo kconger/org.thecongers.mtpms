@@ -1,5 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/units_title" >
+    	<ListPreference
+           	android:key="preftempf"
+          	android:title="@string/pref_tempf_name"
+            android:entries="@array/tempf_array"
+            android:entryValues="@array/tempf_arrayValues"
+            android:defaultValue="0"
+            />
+    	<ListPreference
+           	android:key="prefpressuref"
+          	android:title="@string/pref_pressuref_name"
+            android:entries="@array/pressuref_array"
+            android:entryValues="@array/pressuref_arrayValues"
+            android:defaultValue="0"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/notification_settings_title" >
+        <RingtonePreference 
+    	    android:showDefault="true"
+     		android:key="prefsound"
+     		android:title="@string/pref_sound_name"
+     		android:summary="@string/pref_sound_summary"
+     		android:ringtoneType="notification">
+  		</RingtonePreference>
+    	<CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefNotificationSound"
+            android:summary="@string/pref_notificationSound_summary"
+            android:title="@string/pref_notificationSound_name" >
+        </CheckBoxPreference>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefNotificationVibrate"
+            android:summary="@string/pref_notificationVibrate_summary"
+            android:title="@string/pref_notificationVibrate_name" >
+        </CheckBoxPreference>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefNotificationLED"
+            android:summary="@string/pref_notificationLED_summary"
+            android:title="@string/pref_notificationLED_name" >
+        </CheckBoxPreference>
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/front_alert_settings_title" >
     	<EditTextPreference
         	android:title="@string/pref_front_low_pressure_name"
