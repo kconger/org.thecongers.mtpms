@@ -47,30 +47,32 @@ public final class R {
         public static final int ui=0x7f050000;
     }
     public static final class string {
-        public static final int action_settings=0x7f070001;
+        public static final int action_settings=0x7f070003;
         public static final int app_name=0x7f070000;
-        public static final int front_alert_settings_title=0x7f07000e;
-        public static final int notification_settings_title=0x7f070005;
-        public static final int pref_front_high_pressure_name=0x7f070011;
-        public static final int pref_front_high_pressure_summary=0x7f070012;
-        public static final int pref_front_low_pressure_name=0x7f07000f;
-        public static final int pref_front_low_pressure_summary=0x7f070010;
-        public static final int pref_notificationLED_name=0x7f07000c;
-        public static final int pref_notificationLED_summary=0x7f07000d;
-        public static final int pref_notificationSound_name=0x7f070008;
-        public static final int pref_notificationSound_summary=0x7f070009;
-        public static final int pref_notificationVibrate_name=0x7f07000a;
-        public static final int pref_notificationVibrate_summary=0x7f07000b;
-        public static final int pref_pressuref_name=0x7f070004;
-        public static final int pref_rear_high_pressure_name=0x7f070016;
-        public static final int pref_rear_high_pressure_summary=0x7f070017;
-        public static final int pref_rear_low_pressure_name=0x7f070014;
-        public static final int pref_rear_low_pressure_summary=0x7f070015;
-        public static final int pref_sound_name=0x7f070006;
-        public static final int pref_sound_summary=0x7f070007;
-        public static final int pref_tempf_name=0x7f070003;
-        public static final int rear_alert_settings_title=0x7f070013;
-        public static final int units_title=0x7f070002;
+        public static final int back_wheel_desc=0x7f070002;
+        public static final int front_alert_settings_title=0x7f070010;
+        public static final int front_wheel_desc=0x7f070001;
+        public static final int notification_settings_title=0x7f070007;
+        public static final int pref_front_high_pressure_name=0x7f070013;
+        public static final int pref_front_high_pressure_summary=0x7f070014;
+        public static final int pref_front_low_pressure_name=0x7f070011;
+        public static final int pref_front_low_pressure_summary=0x7f070012;
+        public static final int pref_notificationLED_name=0x7f07000e;
+        public static final int pref_notificationLED_summary=0x7f07000f;
+        public static final int pref_notificationSound_name=0x7f07000a;
+        public static final int pref_notificationSound_summary=0x7f07000b;
+        public static final int pref_notificationVibrate_name=0x7f07000c;
+        public static final int pref_notificationVibrate_summary=0x7f07000d;
+        public static final int pref_pressuref_name=0x7f070006;
+        public static final int pref_rear_high_pressure_name=0x7f070018;
+        public static final int pref_rear_high_pressure_summary=0x7f070019;
+        public static final int pref_rear_low_pressure_name=0x7f070016;
+        public static final int pref_rear_low_pressure_summary=0x7f070017;
+        public static final int pref_sound_name=0x7f070008;
+        public static final int pref_sound_summary=0x7f070009;
+        public static final int pref_tempf_name=0x7f070005;
+        public static final int rear_alert_settings_title=0x7f070015;
+        public static final int units_title=0x7f070004;
     }
     public static final class style {
         /** 

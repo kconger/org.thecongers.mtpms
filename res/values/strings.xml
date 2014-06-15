@@ -3,6 +3,9 @@
 
     <string name="app_name">iTPMS</string>
     
+    <string name="front_wheel_desc">Front Wheel</string>
+    <string name="back_wheel_desc">Back Wheel</string>
+    
     <string name="action_settings">Settings</string>
     
     <string name="units_title">Unit Display</string>

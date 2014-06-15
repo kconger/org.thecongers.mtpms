@@ -15,9 +15,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:orientation="vertical" >
-
-        <ImageView
+    	<ImageView
             android:id="@+id/imageView1"
+            android:contentDescription="@string/front_wheel_desc"
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:scaleType="fitXY"
@@ -25,6 +25,7 @@
 
         <ImageView
             android:id="@+id/imageView2"
+            android:contentDescription="@string/back_wheel_desc"
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:scaleType="fitXY"
@@ -32,12 +33,12 @@
 
         <TextView
             android:id="@+id/txtOutput"
-            android:layout_width="match_parent"
+            android:layout_width="292dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2.38"
+            android:layout_gravity="bottom"
             android:gravity="bottom"
-            android:scrollbars="vertical" />
-
-    </LinearLayout>
+            android:scrollbars="vertical"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+	</LinearLayout>
 
 </RelativeLayout>
