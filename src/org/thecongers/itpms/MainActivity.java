@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PictureDrawable;
 import android.net.Uri;
@@ -41,7 +42,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
  
@@ -54,7 +54,6 @@ public class MainActivity extends Activity {
   
   private BluetoothAdapter btAdapter = null;
   private BluetoothSocket btSocket = null;
-  
   private ConnectedThread mConnectedThread;
   private Set<BluetoothDevice>pairedDevices;
    
@@ -62,8 +61,9 @@ public class MainActivity extends Activity {
   private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
  
   private static final String TAG = "iTPMS";
-  // MAC-address of iTPMS
   private String address;
+  private String svgFUILive;
+  private String svgRUILive;
   TextView txtOutput;
   Handler h;
    
@@ -95,7 +95,7 @@ public class MainActivity extends Activity {
 		temperatureUnit = "F";
 	}
     String svgUI = readRawTextFile(this, R.raw.ui);
-    String svgFUILive = svgUI.replaceAll("PP", "--");
+    svgFUILive = svgUI.replaceAll("PP", "--");
     svgFUILive = svgFUILive.replaceAll("TTT", "---");
     svgFUILive = svgFUILive.replaceAll("VVV", "---");
     svgFUILive = svgFUILive.replaceAll("PSI", pressureUnit);
@@ -103,7 +103,7 @@ public class MainActivity extends Activity {
     final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
     imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     
-    String svgRUILive = svgUI.replaceAll("PP", "--");
+    svgRUILive = svgUI.replaceAll("PP", "--");
     svgRUILive = svgRUILive.replaceAll("TTT", "---");
     svgRUILive = svgRUILive.replaceAll("VVV", "---");
     svgRUILive = svgRUILive.replaceAll("PSI", pressureUnit);
@@ -227,7 +227,7 @@ public class MainActivity extends Activity {
                             	}
                             }
                         	String svgFUI = readRawTextFile(MainActivity.this, R.raw.ui);
-                            String svgFUILive = svgFUI.replaceAll("PP", String.valueOf(formattedPressure));
+                            svgFUILive = svgFUI.replaceAll("PP", String.valueOf(formattedPressure));
                             svgFUILive = svgFUILive.replaceAll("TTT", String.valueOf(formattedTemperature));
                             svgFUILive = svgFUILive.replaceAll("VVV", String.format( "%.2f", voltage ));
                             svgFUILive = svgFUILive.replaceAll("PSI", pressureUnit);
@@ -277,7 +277,7 @@ public class MainActivity extends Activity {
                             	}
                             }
                         	String svgRUI = readRawTextFile(MainActivity.this, R.raw.ui);
-                            String svgRUILive = svgRUI.replaceAll("PP", String.valueOf(formattedPressure));
+                            svgRUILive = svgRUI.replaceAll("PP", String.valueOf(formattedPressure));
                             svgRUILive = svgRUILive.replaceAll("TTT", String.valueOf(formattedTemperature));
                             svgRUILive = svgRUILive.replaceAll("VVV", String.format( "%.2f", voltage ));
                             svgRUILive = svgRUILive.replaceAll("PSI", pressureUnit);
@@ -326,6 +326,57 @@ public class MainActivity extends Activity {
    					Toast.LENGTH_LONG).show();
 		   }
 	   }
+	   if (address != null){
+	    	// Set up a pointer to the remote node using it's address.
+	        BluetoothDevice device = btAdapter.getRemoteDevice(address);
+	       
+	        // Two things are needed to make a connection:
+	        //   A MAC address, which we got above.
+	        //   A Service ID or UUID.  In this case we are using the
+	        //     UUID for SPP.
+	        
+	    	try {
+	    		btSocket = createBluetoothSocket(device);
+	    	} catch (IOException e) {
+	    		errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
+	    	}
+	        
+	        /*try {
+	          btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+	        } catch (IOException e) {
+	          errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
+	        }*/
+	       
+	        // Discovery is resource intensive.  Make sure it isn't going on
+	        // when you attempt to connect and pass your message.
+	        btAdapter.cancelDiscovery();
+	       
+	        // Establish the connection.  This will block until it connects.
+	        Log.d(TAG, "...Connecting...");
+	        try {
+	          btSocket.connect();
+	          Log.d(TAG, "....Connection ok...");
+	          Toast.makeText(MainActivity.this,
+	        		  "Connected to: " + device.getName() + " " + device.getAddress(),
+	        		  Toast.LENGTH_LONG).show();
+	        } catch (IOException e) {
+	          try {
+	            btSocket.close();
+	          } catch (IOException e2) {
+	            errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
+	          }
+	        }
+	         
+	        // Create a data stream so we can talk to server.
+	        Log.d(TAG, "...Create Socket...");
+	       
+	        mConnectedThread = new ConnectedThread(btSocket);
+	        mConnectedThread.start();
+	    	
+	    } else {
+	    	Toast.makeText(MainActivity.this,
+					"No iTPMS paired!",Toast.LENGTH_LONG).show();
+	    }
   }
   
   private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
@@ -343,56 +394,7 @@ public class MainActivity extends Activity {
   @Override
   public void onResume() {
     super.onResume();
-    Log.d(TAG, "...onResume - try connect...");
-   
-    if (address != null){
-    	// Set up a pointer to the remote node using it's address.
-        BluetoothDevice device = btAdapter.getRemoteDevice(address);
-       
-        // Two things are needed to make a connection:
-        //   A MAC address, which we got above.
-        //   A Service ID or UUID.  In this case we are using the
-        //     UUID for SPP.
-        
-    	try {
-    		btSocket = createBluetoothSocket(device);
-    	} catch (IOException e) {
-    		errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
-    	}
-        
-        /*try {
-          btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-        } catch (IOException e) {
-          errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
-        }*/
-       
-        // Discovery is resource intensive.  Make sure it isn't going on
-        // when you attempt to connect and pass your message.
-        btAdapter.cancelDiscovery();
-       
-        // Establish the connection.  This will block until it connects.
-        Log.d(TAG, "...Connecting...");
-        try {
-          btSocket.connect();
-          Log.d(TAG, "....Connection ok...");
-        } catch (IOException e) {
-          try {
-            btSocket.close();
-          } catch (IOException e2) {
-            errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
-          }
-        }
-         
-        // Create a data stream so we can talk to server.
-        Log.d(TAG, "...Create Socket...");
-       
-        mConnectedThread = new ConnectedThread(btSocket);
-        mConnectedThread.start();
-    	
-    } else {
-    	Toast.makeText(MainActivity.this,
-				"No iTPMS paired!",Toast.LENGTH_LONG).show();
-    }
+    Log.d(TAG, "...onResume...");
     
   }
 
@@ -401,12 +403,13 @@ public class MainActivity extends Activity {
     super.onPause();
  
     Log.d(TAG, "...In onPause()...");
-  
+  /*
     try     {
       btSocket.close();
     } catch (IOException e2) {
       errorExit("Fatal Error", "In onPause() and failed to close socket." + e2.getMessage() + ".");
     }
+    */
   }
 
   private void checkBTState() {
@@ -501,6 +504,59 @@ public class MainActivity extends Activity {
               return super.onOptionsItemSelected(item);
   	}
   }
+  //
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+      super.onConfigurationChanged(newConfig);
+      setContentView(R.layout.activity_main);
+      final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
+      final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
+      String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
+      String pressureUnit = "psi";
+      if (pressureFormat.contains("1")) {
+    	  // KPa
+    	  pressureUnit = "KPa";
+      } else if (pressureFormat.contains("2")){
+    		// Kg-f
+    		pressureUnit = "Kg-f";
+      } else if (pressureFormat.contains("3")){
+  		// Bar
+  		pressureUnit = "Bar";
+      }
+      String temperatureUnit = "C";
+      if (sharedPrefs.getString("preftempf", "0").contains("0")) {
+    	// F
+  		temperatureUnit = "F";
+      }
+      String svgUI = readRawTextFile(this, R.raw.ui);
+      if (svgFUILive == null){
+          svgFUILive = svgUI.replaceAll("PP", "--");
+          svgFUILive = svgFUILive.replaceAll("TTT", "---");
+          svgFUILive = svgFUILive.replaceAll("VVV", "---");
+          svgFUILive = svgFUILive.replaceAll("PSI", pressureUnit);
+          svgFUILive = svgFUILive.replaceAll("TU", temperatureUnit); 	  
+      } else if (svgRUILive == null) {
+    	  svgRUILive = svgUI.replaceAll("PP", "--");
+          svgRUILive = svgRUILive.replaceAll("TTT", "---");
+          svgRUILive = svgRUILive.replaceAll("VVV", "---");
+          svgRUILive = svgRUILive.replaceAll("PSI", pressureUnit);
+          svgRUILive = svgRUILive.replaceAll("TU", temperatureUnit);
+      }   
+      try
+      {
+         SVG svgF = SVG.getFromString(svgFUILive);
+         SVG svgR = SVG.getFromString(svgRUILive);
+         Drawable drawableF = new PictureDrawable(svgF.renderToPicture());
+         Drawable drawableR = new PictureDrawable(svgR.renderToPicture());
+         imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+         imageView2.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+         imageView.setImageDrawable(drawableF);
+         imageView2.setImageDrawable(drawableR);
+      }
+      catch(SVGParseException e)
+      {}
+      
+  }
   //Read raw text file
   public static String readRawTextFile(Context ctx, int resId)
   {
@@ -529,13 +585,13 @@ public class MainActivity extends Activity {
   	  PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
   	    	    notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
   	  
-  	  String alertURI = sharedPrefs.getString("funcZeroSound","content://settings/system/notification_sound");
+  	  String alertURI = sharedPrefs.getString("prefsound","content://settings/system/notification_sound");
   	  Uri soundURI = Uri.parse(alertURI);
   	  // Build notification
   	  Notification.Builder builder = new Notification.Builder(this);
   	  builder.setContentTitle(notificationTitle)
         	.setContentText(notificationMessage)
-        	.setSmallIcon(R.drawable.ic_launcher)
+        	.setSmallIcon(R.drawable.app_icon)
         	.setContentIntent(pendingIntent);
   	  // Check for LED enabled
   	  if (sharedPrefs.getBoolean("prefNotificationLED", true)) {
@@ -557,6 +613,5 @@ public class MainActivity extends Activity {
   	  notification.priority = Notification.PRIORITY_MAX;
   	  // Send notification
   	  notificationManager.notify(notificationID, notification);
-
   }
 }

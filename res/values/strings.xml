@@ -53,5 +53,8 @@
     <string name="pref_rear_low_pressure_summary">Rear Low Pressure Alert Threshold</string>    
     <string name="pref_rear_high_pressure_name">Rear High Pressure</string>
     <string name="pref_rear_high_pressure_summary">Rear High Pressure Alert Threshold</string>
+    
+    <string name="app_icon_desc">iTPMS Logo</string>
+    
 
 </resources>
