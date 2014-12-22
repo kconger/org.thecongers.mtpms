@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/units_title" >
+    	<ListPreference
+           	android:key="preftempf"
+          	android:title="@string/pref_tempf_name"
+            android:entries="@array/tempf_array"
+            android:entryValues="@array/tempf_arrayValues"
+            android:defaultValue="0"
+            />
+    	<ListPreference
+           	android:key="prefpressuref"
+          	android:title="@string/pref_pressuref_name"
+            android:entries="@array/pressuref_array"
+            android:entryValues="@array/pressuref_arrayValues"
+            android:defaultValue="0"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/notification_settings_title" >
+        <RingtonePreference 
+    	    android:showDefault="true"
+     		android:key="prefsound"
+     		android:title="@string/pref_sound_name"
+     		android:summary="@string/pref_sound_summary"
+     		android:ringtoneType="notification">
+  		</RingtonePreference>
+    	<CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefNotificationSound"
+            android:summary="@string/pref_notificationSound_summary"
+            android:title="@string/pref_notificationSound_name" >
+        </CheckBoxPreference>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefNotificationVibrate"
+            android:summary="@string/pref_notificationVibrate_summary"
+            android:title="@string/pref_notificationVibrate_name" >
+        </CheckBoxPreference>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="prefNotificationLED"
+            android:summary="@string/pref_notificationLED_summary"
+            android:title="@string/pref_notificationLED_name" >
+        </CheckBoxPreference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/front_wheel_settings_title" >
+        <ListPreference
+            android:key="prefFrontID"
+            android:title="@string/pref_frontid_name"
+            android:summary="@string/pref_frontid_summary"
+            />
+    	<EditTextPreference
+        	android:title="@string/pref_front_low_pressure_name"
+            android:summary="@string/pref_front_low_pressure_summary"
+            android:defaultValue="30"
+            android:key="prefFrontLowPressure"
+            />
+    	<EditTextPreference
+        	android:title="@string/pref_front_high_pressure_name"
+            android:summary="@string/pref_front_high_pressure_summary"
+            android:defaultValue="46"
+            android:key="prefFrontHighPressure"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/rear_wheel_settings_title" >
+        <ListPreference
+            android:key="prefRearID"
+            android:title="@string/pref_rearid_name"
+            android:summary="@string/pref_rearid_summary"
+            />
+    	<EditTextPreference
+        	android:title="@string/pref_rear_low_pressure_name"
+            android:summary="@string/pref_rear_low_pressure_summary"
+            android:defaultValue="30"
+            android:key="prefRearLowPressure"
+            />
+    	<EditTextPreference
+        	android:title="@string/pref_rear_high_pressure_name"
+            android:summary="@string/pref_rear_high_pressure_summary"
+            android:defaultValue="46"
+            android:key="prefRearHighPressure"
+            />  	
+    </PreferenceCategory>
+
+</PreferenceScreen>
+<!-- From: file:/Users/keithconger/Projects/Android/AndroidstudioProjects/org.thecongers.itpms/app/src/main/res/xml/user_settings.xml -->
