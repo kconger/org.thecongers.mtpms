@@ -128,11 +128,12 @@ public class MainActivity extends Activity {
     }
    
     txtOutput = (TextView) findViewById(R.id.txtOutput);
-    
+
     h = new Handler() {
     	public void handleMessage(android.os.Message msg) {
             String prefFrontID = sharedPrefs.getString("prefFrontID", "");
             String prefRearID = sharedPrefs.getString("prefRearID", "");
+            // TODO: Move this somewhere more appropriate
             if (prefFrontID.equals("") && prefRearID.equals("")) {
                 Toast.makeText(MainActivity.this,
                         "No wheel sensor locations set!",
@@ -167,7 +168,6 @@ public class MainActivity extends Activity {
                         if (!checkID) {
                             // Add sensor ID
                             sensorDB.addID(sensorID.toString());
-                            Log.d(TAG, "New sensor ID added: " + sensorID.toString());
                             Toast.makeText(MainActivity.this,
                                     "New sensor ID discovered: " + sensorID.toString(),
                                     Toast.LENGTH_LONG).show();
@@ -176,8 +176,6 @@ public class MainActivity extends Activity {
 
                         prefFrontID = sharedPrefs.getString("prefFrontID", "");
                         prefRearID = sharedPrefs.getString("prefRearID", "");
-
-
 
                         if (!prefFrontID.equals("") || !prefRearID.equals("")) {
 
@@ -222,7 +220,7 @@ public class MainActivity extends Activity {
                                 String checksum = hexData[11];
                                 Log.d(TAG, "Sensor ID: " + sensorID.toString() + ", Sensor Position: " + position + ", Temperature(" + temperatureUnit + "): " + String.valueOf(temp) + ", Pressure(" + pressureUnit + "): " + String.valueOf(pressure) + ", Voltage: " + String.valueOf(voltage) + ", Checksum: " + checksum + ", Data: " + sbhex.toString() + ", Bytes:" + msg.arg1);
 
-                                if (sensorID.toString().contains(prefFrontID)) {
+                                if (sensorID.toString().equals(prefFrontID)) {
                                     Log.d(TAG, "Front ID Matched");
                                     int notificationID = 0;
                                     if (psi <= fLowPressure) {
@@ -285,7 +283,7 @@ public class MainActivity extends Activity {
                                         Log.d(TAG, "SVG Parse Exception");
                                     }
 
-                                } else if (sensorID.toString().contains(prefRearID)) {
+                                } else if (sensorID.toString().equals(prefRearID)) {
                                     Log.d(TAG, "Rear ID Matched");
                                     int notificationID = 1;
                                     if (psi <= rLowPressure) {
@@ -360,10 +358,8 @@ public class MainActivity extends Activity {
                     } else {
                         Log.d(TAG, "Malformed message, message length: " + msg.arg1);
                     }
-
-
-                        break;
-                    }
+                    break;
+            }
             }
 	};
      
@@ -526,7 +522,8 @@ public class MainActivity extends Activity {
 	        }
 	    }
 	 
-	}
+  }
+
   //Runs when settings are updated
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -543,6 +540,7 @@ public class MainActivity extends Activity {
   {
   	// Update
   }
+
   //Draw options menu
   @Override
   public boolean onCreateOptionsMenu(Menu menu)
@@ -557,13 +555,13 @@ public class MainActivity extends Activity {
   public boolean onOptionsItemSelected(MenuItem item)
   {
   	switch (item.getItemId()) {
-          case R.id.action_settings:
+        case R.id.action_settings:
               // Settings Menu was selected
           	Intent i = new Intent(getApplicationContext(), UserSettingActivity.class);
               startActivityForResult(i, SETTINGS_RESULT);
               return true;
         case R.id.action_sensorReset:
-            // Sensor ID Menu Item was selected
+            // Sensor Reset Menu Item was selected
             sensorDB.purgeID();
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
             settings.edit().remove("prefFrontID").apply();
@@ -572,11 +570,11 @@ public class MainActivity extends Activity {
                     "Sensor ID Database Purged!",
                     Toast.LENGTH_SHORT).show();
             return true;
-          default:
-              return super.onOptionsItemSelected(item);
+        default:
+            return super.onOptionsItemSelected(item);
   	}
   }
-  //
+
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
       super.onConfigurationChanged(newConfig);

@@ -24,10 +24,9 @@ public class UserSettingActivity extends PreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.user_settings);
 
+            // Dynamically populate sensorID lists
             final ListPreference listFrontIDPreference = (ListPreference) findPreference("prefFrontID");
             final ListPreference listRearIDPreference = (ListPreference) findPreference("prefRearID");
-
-            // THIS IS REQUIRED IF YOU DON'T HAVE 'entries' and 'entryValues' in your XML
             setListPreferenceData(listFrontIDPreference);
             setListPreferenceData(listRearIDPreference);
         }
@@ -49,7 +48,7 @@ public class UserSettingActivity extends PreferenceActivity {
             int position = 0;
             while (!sensorIDs.isAfterLast()) {
                 entries[position] = sensorIDs.getString(1);
-                entryValues[position] = String.valueOf(position);
+                entryValues[position] = sensorIDs.getString(1);
                 sensorIDs.moveToNext();
                 position = position + 1;
 
@@ -57,10 +56,7 @@ public class UserSettingActivity extends PreferenceActivity {
             sensorIDs.close();
         }
 
-        //CharSequence[] entries = { MainActivity.frontID, MainActivity.rearID };
-        //CharSequence[] entryValues = {"1" , "2"};
         lp.setEntries(entries);
-        //lp.setDefaultValue("1");
         lp.setEntryValues(entryValues);
     }
 

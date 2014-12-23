@@ -21,6 +21,7 @@ public class sensorIdDatabase extends SQLiteAssetHelper {
 
     }
 
+    // Return all sensor IDs from the database
     public Cursor getAllSensorIDs() {
 
         Log.d(TAG, "Returning sensor IDs from DB");
@@ -43,15 +44,20 @@ public class sensorIdDatabase extends SQLiteAssetHelper {
 
         Cursor c = db.query(sqlTables, new String[] {"_id", "sensorID"}, "sensorID=?", new String[] { id }, null, null, null);
         if (c != null) {
-            Log.d(TAG, "sensorIdExists: cursor is not NULL");
             c.moveToFirst();
-            c.close();
-            db.close();
-            return true;
+            int count = c.getCount();
+            if(count == 0){
+                Log.d(TAG, "sensorIdExists: FALSE");
+                c.close();
+                db.close();
+                return false;
+            } else {
+                Log.d(TAG, "sensorIdExists: TRUE");
+                c.close();
+                db.close();
+                return true;
+            }
         }
-
-        Log.d(TAG, "sensorIdExists: cursor is NULL");
-        db.close();
         return false;
     }
 
@@ -80,7 +86,6 @@ public class sensorIdDatabase extends SQLiteAssetHelper {
         // Delete rows
         db.delete(sqlTables, null, null);
         db.execSQL("VACUUM");
-        // Closing database connection
         db.close();
 
     }
