@@ -140,8 +140,6 @@ public class MainActivity extends Activity {
     }
    
     txtOutput = (TextView) findViewById(R.id.txtOutput);
-    // TODO Remove, for test
-      txtOutput.setText("Set Sensor ID Locations!");
 
     h = new Handler() {
     	public void handleMessage(android.os.Message msg) {
@@ -179,7 +177,7 @@ public class MainActivity extends Activity {
                             // Add sensor ID
                             sensorDB.addID(sensorID.toString());
                             Toast.makeText(MainActivity.this,
-                                    "New sensor ID discovered: " + sensorID.toString(),
+                                    "New sensor discovered: " + sensorID.toString(),
                                     Toast.LENGTH_LONG).show();
 
                         }
@@ -437,7 +435,7 @@ public class MainActivity extends Activity {
   @Override
   public void onResume() {
     super.onResume();
-    Log.d(TAG, "...onResume...");
+    Log.d(TAG, "...In onResume...");
     
   }
 
@@ -605,12 +603,15 @@ public class MainActivity extends Activity {
   	}
   }
 
+
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
       super.onConfigurationChanged(newConfig);
       setContentView(R.layout.activity_main);
-      final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
+
+      // Restore Gauges
       final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
+      final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
       String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
       String pressureUnit = "psi";
       if (pressureFormat.contains("1")) {
@@ -656,13 +657,21 @@ public class MainActivity extends Activity {
       catch(SVGParseException e){
           Log.d(TAG, "SVG Parse Exception");
       }
+
+      // Restore animation
       if (colorFadeFront != null){
           alertAnimation(imageView, 0);
       }
       if (colorFadeRear != null){
           alertAnimation(imageView2, 1);
       }
+
+      // Restore current message
+      CharSequence currentTxt = txtOutput.getText();
+      txtOutput= (TextView) findViewById(R.id.txtOutput);
+      txtOutput.setText(currentTxt);
   }
+
   //Read raw text file
   public static String readRawTextFile(Context ctx, int resId)
   {

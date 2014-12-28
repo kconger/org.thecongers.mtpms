@@ -17,7 +17,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="org.thecongers.itpms.MainActivity"
-            android:configChanges="keyboardHidden|screenSize|orientation"
+            android:configChanges="screenSize|orientation"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
