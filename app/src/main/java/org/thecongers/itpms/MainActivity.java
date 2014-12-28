@@ -79,6 +79,7 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
     sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
     setContentView(R.layout.activity_main);
+    sensorDB = new sensorIdDatabase(this);
 
     // Keep screen on
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -91,8 +92,7 @@ public class MainActivity extends Activity {
     this.registerReceiver(btReceiver, filter2);
     this.registerReceiver(btReceiver, filter3);
 
-    sensorDB = new sensorIdDatabase(this);
-    
+    // Draw gauges
     String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
     String pressureUnit = "psi";
 	if (pressureFormat.contains("1")) {
@@ -138,21 +138,20 @@ public class MainActivity extends Activity {
     catch(SVGParseException e){
         Log.d(TAG, "SVG Parse Exception");
     }
-   
+
+    // Check if there are sensor to wheel mappings, alert if not.
     txtOutput = (TextView) findViewById(R.id.txtOutput);
+    if (sharedPrefs.getString("prefFrontID", "").equals("") && sharedPrefs.getString("prefRearID", "").equals("")) {
+        txtOutput.setText("Please map discovered sensor IDs to wheels!");
+    }
 
     h = new Handler() {
     	public void handleMessage(android.os.Message msg) {
-            String prefFrontID = sharedPrefs.getString("prefFrontID", "");
-            String prefRearID = sharedPrefs.getString("prefRearID", "");
-            if (prefFrontID.equals("") && prefRearID.equals("")) {
-                txtOutput.setText("Set Sensor ID Locations!");
-            }
             switch (msg.what) {
                 case RECEIVE_MESSAGE:
                     // Message received
                     Log.d(TAG, "Serial Message Received, Length: " + msg.arg1);
-
+                    // Check to see if message is the correct size
                     if (msg.arg1 == 13) {
                         byte[] readBuf = (byte[]) msg.obj;
                         // Convert to hex
@@ -174,17 +173,16 @@ public class MainActivity extends Activity {
                         // Check if sensor ID is new
                         boolean checkID = sensorDB.sensorIdExists(sensorID.toString());
                         if (!checkID) {
-                            // Add sensor ID
+                            // Add sensor ID to db
                             sensorDB.addID(sensorID.toString());
                             Toast.makeText(MainActivity.this,
                                     "New sensor discovered: " + sensorID.toString(),
                                     Toast.LENGTH_LONG).show();
 
                         }
-
-                        prefFrontID = sharedPrefs.getString("prefFrontID", "");
-                        prefRearID = sharedPrefs.getString("prefRearID", "");
-
+                        // Only parse message if there is atleast one sensor mapping
+                        String prefFrontID = sharedPrefs.getString("prefFrontID", "");
+                        String prefRearID = sharedPrefs.getString("prefRearID", "");
                         if (!prefFrontID.equals("") || !prefRearID.equals("")) {
 
                             try {
@@ -261,8 +259,6 @@ public class MainActivity extends Activity {
                                     svgFUILive = svgFUILive.replaceAll("TU", temperatureUnit);
                                     try {
                                         SVG svg = SVG.getFromString(svgFUILive);
-                                        svg.setDocumentViewBox(0, 0, svg.getDocumentWidth(),
-                                                svg.getDocumentHeight());
                                         Drawable drawable = new PictureDrawable(svg.renderToPicture());
                                         imageView.setImageDrawable(drawable);
                                     } catch (SVGParseException e) {
@@ -302,14 +298,11 @@ public class MainActivity extends Activity {
                                     svgRUILive = svgRUILive.replaceAll("TU", temperatureUnit);
                                     try {
                                         SVG svg = SVG.getFromString(svgRUILive);
-                                        svg.setDocumentViewBox(0, 0, svg.getDocumentWidth(),
-                                                svg.getDocumentHeight());
                                         Drawable drawable = new PictureDrawable(svg.renderToPicture());
                                         imageView2.setImageDrawable(drawable);
                                     } catch (SVGParseException e) {
                                         Log.d(TAG, "SVG Parse Exception");
                                     }
-
                                 }
                                 // Tell widget to update
                                 iTPMSWidgetProvider.updateWidgetContent(getBaseContext(),
@@ -331,6 +324,7 @@ public class MainActivity extends Activity {
     btConnect();
   }
 
+  // Connect to iTPMS
   private boolean btConnect() {
       btAdapter = BluetoothAdapter.getDefaultAdapter();		// get Bluetooth adapter
       checkBTState();
@@ -364,7 +358,7 @@ public class MainActivity extends Activity {
           try {
               btSocket = createBluetoothSocket(device);
           } catch (IOException e) {
-              errorExit("Fatal Error", "In onCreate() and socket create failed: " + e.getMessage() + ".");
+              Log.d(TAG,"In onCreate() and socket create failed: " + e.getMessage() + ".");
               return false;
           }
 
@@ -385,7 +379,7 @@ public class MainActivity extends Activity {
                   btSocket.close();
                   return false;
               } catch (IOException e2) {
-                  errorExit("Fatal Error", "In onCreate() and unable to close socket during connection failure" + e2.getMessage() + ".");
+                  Log.d(TAG,"In onCreate() and unable to close socket during connection failure");
                   return false;
               }
           }
@@ -445,7 +439,7 @@ public class MainActivity extends Activity {
     Log.d(TAG, "...In onPause()...");
   }
 
-    //The BroadcastReceiver that listens for bluetooth broadcasts
+    // Listens for bluetooth broadcasts
     private final BroadcastReceiver btReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -453,24 +447,25 @@ public class MainActivity extends Activity {
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
             if ((BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) && (device.getName().contains("iTPMS"))) {
-                //Do something if connected
+                // Do something if connected
                 Log.d(TAG, "iTPMS Device Connected");
                 if (btSocket == null) {
                     btConnect();
                 }
             }
             else if ((BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) && (device.getName().contains("iTPMS"))) {
-                //Do something if disconnected
+                // Do something if disconnected
                 Log.d(TAG, "iTPMS Device Disconnected");
             }
         }
     };
 
+  // Check current Bluetooth state
   private void checkBTState() {
     // Check for Bluetooth support and then check to make sure it is turned on
     // Emulator doesn't support Bluetooth and will return null
-    if(btAdapter==null) { 
-      errorExit("Fatal Error", "Bluetooth not supported");
+    if(btAdapter==null) {
+      Log.d(TAG, "Bluetooth not supported");
     } else {
       if (btAdapter.isEnabled()) {
         Log.d(TAG, "Bluetooth is on");
@@ -481,15 +476,9 @@ public class MainActivity extends Activity {
       }
     }
   }
- 
-  private void errorExit(String title, String message){
-    Toast.makeText(getBaseContext(), title + " - " + message, Toast.LENGTH_LONG).show();
-    finish();
-  }
 
   // Alert Animation
   private void alertAnimation(ImageView imageView, int location) {
-
       if ( location == 0) {
           if (colorFadeFront != null) {
               colorFadeFront.cancel();
@@ -510,9 +499,7 @@ public class MainActivity extends Activity {
           colorFadeRear.setRepeatMode(ValueAnimator.REVERSE);
           colorFadeRear.setAutoCancel(true);
           colorFadeRear.start();
-
       }
-
   }
  
   private class ConnectedThread extends Thread {
@@ -577,7 +564,7 @@ public class MainActivity extends Activity {
 		return true;
   }
   
-  // When settings menu is selected
+  // When options menu item is selected
   @Override
   public boolean onOptionsItemSelected(MenuItem item)
   {
@@ -603,7 +590,7 @@ public class MainActivity extends Activity {
   	}
   }
 
-
+  // Called when screen rotates or size changes
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
       super.onConfigurationChanged(newConfig);
@@ -692,6 +679,7 @@ public class MainActivity extends Activity {
 	    }
 	    return text.toString();
 	}
+
   //Send Notification
   private void Notify(String notificationTitle, String notificationMessage, int notificationID) 
   {
