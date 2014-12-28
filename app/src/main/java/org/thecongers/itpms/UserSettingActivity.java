@@ -32,6 +32,7 @@ public class UserSettingActivity extends PreferenceActivity {
         }
     }
 
+    // Dynamically populate the sensor ID list preferences
     protected static void setListPreferenceData(ListPreference lp) {
 
         sensorIdDatabase sensorDB;
@@ -51,7 +52,6 @@ public class UserSettingActivity extends PreferenceActivity {
                 entryValues[position] = sensorIDs.getString(1);
                 sensorIDs.moveToNext();
                 position = position + 1;
-
             }
             sensorIDs.close();
         }

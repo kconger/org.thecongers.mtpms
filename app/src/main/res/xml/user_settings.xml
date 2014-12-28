@@ -46,8 +46,8 @@
     <PreferenceCategory android:title="@string/front_wheel_settings_title" >
         <ListPreference
             android:key="prefFrontID"
-            android:title="@string/pref_frontid_name"
-            android:summary="@string/pref_frontid_summary"
+            android:title="@string/pref_front_id_name"
+            android:summary="@string/pref_front_id_summary"
             />
     	<EditTextPreference
         	android:title="@string/pref_front_low_pressure_name"
@@ -65,8 +65,8 @@
     <PreferenceCategory android:title="@string/rear_wheel_settings_title" >
         <ListPreference
             android:key="prefRearID"
-            android:title="@string/pref_rearid_name"
-            android:summary="@string/pref_rearid_summary"
+            android:title="@string/pref_rear_id_name"
+            android:summary="@string/pref_rear_id_summary"
             />
     	<EditTextPreference
         	android:title="@string/pref_rear_low_pressure_name"
@@ -79,7 +79,6 @@
             android:summary="@string/pref_rear_high_pressure_summary"
             android:defaultValue="46"
             android:key="prefRearHighPressure"
-            />  	
+            />
     </PreferenceCategory>
-
 </PreferenceScreen>

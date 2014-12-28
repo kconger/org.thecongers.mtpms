@@ -11,10 +11,10 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.2 r9819"
+   inkscape:version="0.48.5 r10040"
    sodipodi:docname="ui.svg"
-   width="600"
-   height="565">
+   width="596"
+   height="564.5">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -24,17 +24,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.55"
-     inkscape:cx="360.13014"
-     inkscape:cy="375.83798"
+     inkscape:zoom="3.3224977"
+     inkscape:cx="418.70219"
+     inkscape:cy="583.1417"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1665"
-     inkscape:window-height="1156"
+     inkscape:window-height="1155"
      inkscape:window-x="0"
      inkscape:window-y="0"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="0"
+     width="1488.19px" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -51,30 +52,31 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-487.36218)">
+     transform="translate(0,-487.86211)">
     <rect
        style="fill:none;stroke:#000000;stroke-width:23.02653885;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect2985"
        width="573.5426"
        height="541.27545"
-       x="12.81755"
-       y="499.28961" />
+       x="11.785001"
+       y="499.63382" />
     <text
        xml:space="preserve"
        style="font-size:202.18424988px;font-style:normal;font-weight:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="68.984344"
-       y="708.71619"
+       x="67.01889"
+       y="708.75873"
        id="text3755"
        sodipodi:linespacing="125%"
        transform="scale(0.98475141,1.0154847)"><tspan
          sodipodi:role="line"
          id="tspan3757"
-         x="68.984344"
-         y="708.71619">PP</tspan></text>
+         x="67.01889"
+         y="708.75873">PP</tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot3767"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"><flowRegion
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       transform="translate(-1.9354839,0.04320452)"><flowRegion
          id="flowRegion3769"><rect
            id="rect3771"
            width="22.222221"
@@ -84,64 +86,64 @@
          id="flowPara3773" /></flowRoot>    <text
        xml:space="preserve"
        style="font-size:67.39474487px;font-style:normal;font-weight:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="328.20828"
-       y="715.20471"
+       x="326.24283"
+       y="715.24725"
        id="text3775"
        sodipodi:linespacing="125%"
        transform="scale(0.98475141,1.0154847)"><tspan
          sodipodi:role="line"
          id="tspan3777"
-         x="328.20828"
-         y="715.20471">PSI</tspan></text>
+         x="326.24283"
+         y="715.24725">PSI</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:89.85966492px;font-style:normal;font-weight:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="88.604317"
-       y="845.3186"
+       x="86.638863"
+       y="845.36115"
        id="text3798"
        sodipodi:linespacing="125%"
        transform="scale(0.98475141,1.0154847)"><tspan
          sodipodi:role="line"
          id="tspan3800"
-         x="88.604317"
-         y="845.3186">TTT</tspan></text>
+         x="86.638863"
+         y="845.36115">TTT</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:56.16228867px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="330.64923"
-       y="845.5611"
+       x="328.68378"
+       y="845.60364"
        id="text3802"
        sodipodi:linespacing="125%"
        transform="scale(0.98475141,1.0154847)"><tspan
          sodipodi:role="line"
          id="tspan3804"
-         x="330.64923"
-         y="845.5611"
+         x="328.68378"
+         y="845.60364"
          style="text-align:start;text-anchor:start">TU</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:89.85966492px;font-style:normal;font-weight:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="85.102318"
-       y="963.53619"
+       x="83.136864"
+       y="963.57874"
        id="text3806"
        sodipodi:linespacing="125%"
        transform="scale(0.98475141,1.0154847)"><tspan
          sodipodi:role="line"
          id="tspan3808"
-         x="85.102318"
-         y="963.53619">VVV</tspan></text>
+         x="83.136864"
+         y="963.57874">VVV</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:56.16228867px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="330.41382"
-       y="964.58905"
+       x="328.44836"
+       y="964.63159"
        id="text3810"
        sodipodi:linespacing="125%"
        transform="scale(0.98475141,1.0154847)"><tspan
          sodipodi:role="line"
          id="tspan3812"
-         x="330.41382"
-         y="964.58905"
+         x="328.44836"
+         y="964.63159"
          style="text-align:start;text-anchor:start">V</tspan></text>
   </g>
 </svg>

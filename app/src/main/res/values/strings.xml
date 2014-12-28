@@ -2,12 +2,13 @@
 <resources>
 
     <string name="app_name">iTPMS</string>
-    
+
     <string name="front_wheel_desc">Front Wheel</string>
     <string name="back_wheel_desc">Back Wheel</string>
     
     <string name="action_settings">Settings</string>
     <string name="action_sensorReset">Reset Sensor IDs</string>
+    <string name="action_exit">Exit</string>
     
     <string name="units_title">Unit Display</string>
     <string name="pref_tempf_name">Temperature Unit</string>
@@ -44,22 +45,21 @@
     <string name="pref_notificationLED_summary">Enable LED</string>
 
     <string name="front_wheel_settings_title">Front Wheel Settings</string>
-    <string name="pref_frontid_name">Front Wheel Sensor ID</string>
-    <string name="pref_frontid_summary">Select the front sensor ID</string>
+    <string name="pref_front_id_name">Front Wheel Sensor ID</string>
+    <string name="pref_front_id_summary">Select the front sensor ID</string>
     <string name="pref_front_low_pressure_name">Front Low Pressure</string>
     <string name="pref_front_low_pressure_summary">Front Low Pressure Alert Threshold</string>
     <string name="pref_front_high_pressure_name">Front High Pressure</string>
     <string name="pref_front_high_pressure_summary">Front High Pressure Alert Threshold</string>
 
-    <string name="rear_wheel_settings_title">Rear Weel Settings</string>
-    <string name="pref_rearid_name">Rear Wheel Sensor ID</string>
-    <string name="pref_rearid_summary">Select the rear sensor ID</string>
+    <string name="rear_wheel_settings_title">Rear Wheel Settings</string>
+    <string name="pref_rear_id_name">Rear Wheel Sensor ID</string>
+    <string name="pref_rear_id_summary">Select the rear sensor ID</string>
     <string name="pref_rear_low_pressure_name">Rear Low Pressure</string>
     <string name="pref_rear_low_pressure_summary">Rear Low Pressure Alert Threshold</string>    
     <string name="pref_rear_high_pressure_name">Rear High Pressure</string>
     <string name="pref_rear_high_pressure_summary">Rear High Pressure Alert Threshold</string>
     
     <string name="app_icon_desc">iTPMS Logo</string>
-    
 
 </resources>

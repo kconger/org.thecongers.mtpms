@@ -18,29 +18,33 @@
     	<ImageView
             android:id="@+id/imageView1"
             android:contentDescription="@string/front_wheel_desc"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:scaleType="fitXY"
+            android:layout_width="220dp"
+            android:layout_height="208dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/app_icon" />
+
+        <Space
+            android:layout_width="16dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical" />
 
         <ImageView
             android:id="@+id/imageView2"
             android:contentDescription="@string/back_wheel_desc"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:scaleType="fitXY"
+            android:layout_width="220dp"
+            android:layout_height="208dp"
+            android:scaleType="fitCenter"
             android:src="@drawable/app_icon" />
-	</LinearLayout>
 
+    </LinearLayout>
     <TextView
         android:id="@+id/txtOutput"
-        android:layout_width="292dp"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/linearLayout1"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:gravity="bottom"
         android:scrollbars="vertical"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_below="@+id/linearLayout1"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>
