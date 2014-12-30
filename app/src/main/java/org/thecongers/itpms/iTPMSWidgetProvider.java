@@ -21,12 +21,17 @@ public class iTPMSWidgetProvider extends AppWidgetProvider {
 	}
 	public static void updateWidgetContent(Context context, AppWidgetManager appWidgetManager) {
 		RemoteViews remoteView = new RemoteViews(context.getPackageName(), R.layout.itpms_appwidget_layout);
-		// DO something
+		// TODO: DO something
 		
 		// Launch app when widget is pressed
-		Intent launchAppIntent = new Intent(context, MainActivity.class);
-		PendingIntent launchAppPendingIntent = PendingIntent.getActivity(context, 0, launchAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);     
-		remoteView.setOnClickPendingIntent(R.id.full_widget, launchAppPendingIntent);
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
+                intent, 0);
+
+        remoteView.setOnClickPendingIntent(R.id.full_widget, pendingIntent);
 	 
 		ComponentName iTPMSWidget = new ComponentName(context, iTPMSWidgetProvider.class);
 		appWidgetManager.updateAppWidget(iTPMSWidget, remoteView);
