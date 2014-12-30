@@ -66,6 +66,7 @@ public class MainActivity extends Activity {
     private String svgRUILive;
 
     static sensorIdDatabase sensorDB;
+    LogData logger = null;
 
     TextView txtOutput;
     Handler h;
@@ -225,13 +226,21 @@ public class MainActivity extends Activity {
 
                                     if (sensorID.toString().equals(prefFrontID)) {
                                         Log.d(TAG, "Front ID matched");
+                                        // Check for data logging enabled
+                                        if (sharedPrefs.getBoolean("prefDataLogging", false)) {
+                                            // Log data
+                                            if (logger == null){
+                                                logger = new LogData();
+                                            }
+                                            LogData.write("front", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
+                                        }
                                         int notificationID = 0;
                                         if (psi <= fLowPressure) {
                                             // Send notification
                                             Notify("iTPMS", "Low front tire pressure!", notificationID);
                                             txtOutput.setText("Low front tire pressure!");
                                             // Fade background in and out
-                                            if (colorFadeFront != null) {
+                                            if (colorFadeFront == null) {
                                                 alertAnimation(imageView, 0);
                                             }
                                         } else if (psi >= fHighPressure) {
@@ -239,7 +248,7 @@ public class MainActivity extends Activity {
                                             Notify("iTPMS", "High front tire pressure!", notificationID);
                                             txtOutput.setText("High front tire pressure!");
                                             // Fade background in and out
-                                            if (colorFadeFront != null) {
+                                            if (colorFadeFront == null) {
                                                 alertAnimation(imageView, 0);
                                             }
 
@@ -268,13 +277,21 @@ public class MainActivity extends Activity {
 
                                     } else if (sensorID.toString().equals(prefRearID)) {
                                         Log.d(TAG, "Rear ID matched");
+                                        // Check for data logging enabled
+                                        if (sharedPrefs.getBoolean("prefDataLogging", false)) {
+                                            // Log data
+                                            if (logger == null) {
+                                                logger = new LogData();
+                                            }
+                                            logger.write("rear", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
+                                        }
                                         int notificationID = 1;
                                         if (psi <= rLowPressure) {
                                             // Send notification
                                             Notify("iTPMS", "Low rear tire pressure!", notificationID);
                                             txtOutput.setText("Low rear tire pressure!");
                                             // Fade background in and out
-                                            if (colorFadeRear != null) {
+                                            if (colorFadeRear == null) {
                                                 alertAnimation(imageView2, 1);
                                             }
 
@@ -283,7 +300,7 @@ public class MainActivity extends Activity {
                                             Notify("iTPMS", "High rear tire pressure!", notificationID);
                                             txtOutput.setText("High rear tire pressure!");
                                             // Fade background in and out
-                                            if (colorFadeRear != null) {
+                                            if (colorFadeRear == null) {
                                                 alertAnimation(imageView2, 1);
                                             }
 
@@ -427,10 +444,33 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.action_exit:
                 // Exit menu item was selected
+                if (logger != null){
+                    logger.shutdown();
+                }
                 finish();
                 System.exit(0);
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    //Runs when settings are updated
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==SETTINGS_RESULT)
+        {
+            updateUserSettings();
+        }
+    }
+
+    // Update UI when settings are updated
+    private void updateUserSettings()
+    {
+        // Update logging status
+        if (!sharedPrefs.getBoolean("prefDataLogging", false) && (logger != null)) {
+            logger.shutdown();
         }
     }
 

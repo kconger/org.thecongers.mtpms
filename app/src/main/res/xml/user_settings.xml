@@ -81,4 +81,12 @@
             android:key="prefRearHighPressure"
             />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/advanced_settings_title" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="prefDataLogging"
+            android:summary="@string/pref_dataLogging_summary"
+            android:title="@string/pref_dataLogging_name" >
+        </CheckBoxPreference>
+    </PreferenceCategory>
 </PreferenceScreen>

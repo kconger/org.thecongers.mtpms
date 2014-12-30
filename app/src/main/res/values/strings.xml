@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">iTPMS</string>
+    <string name="app_icon_desc">iTPMS Logo</string>
 
     <string name="front_wheel_desc">Front Wheel</string>
     <string name="back_wheel_desc">Back Wheel</string>
@@ -59,7 +60,8 @@
     <string name="pref_rear_low_pressure_summary">Rear Low Pressure Alert Threshold</string>    
     <string name="pref_rear_high_pressure_name">Rear High Pressure</string>
     <string name="pref_rear_high_pressure_summary">Rear High Pressure Alert Threshold</string>
-    
-    <string name="app_icon_desc">iTPMS Logo</string>
 
+    <string name="advanced_settings_title">Advanced Settings</string>
+    <string name="pref_dataLogging_name">Data Logging</string>
+    <string name="pref_dataLogging_summary">Enable data logging to /sdcard/itpms/</string>
 </resources>
