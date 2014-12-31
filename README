@@ -15,6 +15,14 @@ Current Features:
 * User configurable notifications for low/high tire pressure (Sound, vibrate and LED)
 * Optional data logging in csv format to /sdcard/itpms
 
+Howto Use:
+1) Power on the iTPMSystem
+2) Pair your device to the iTPMSystem unit, test with the Vendor supplied app and close it.
+3) Launch iTPMSystem, you should see message that you are connected.
+   You now need to wait for the sensors to start sending data through the iTPMSystem.
+4) Once discovered map them to their wheel locations in the preferences.
+5) Enjoy
+
 Software Used:
 Android SQLiteAssetHelper
 https://github.com/jgilfelt/android-sqlite-asset-helper

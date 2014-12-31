@@ -470,70 +470,74 @@ public class MainActivity extends Activity {
     private boolean btConnect() {
         btAdapter = BluetoothAdapter.getDefaultAdapter();		// get Bluetooth adapter
         checkBTState();
-        pairedDevices = btAdapter.getBondedDevices();
-        // If there are paired devices
-        if (pairedDevices.size() > 0) {
-            // Loop through paired devices
-            for (BluetoothDevice device : pairedDevices) {
-                if (device.getName().contains("iTPMS")) {
-                    address = device.getAddress();
-                    Log.d(TAG, "Paired iTPMSystem found: " + device.getName() + " " + device.getAddress());
+        if(btAdapter!=null) {
+            pairedDevices = btAdapter.getBondedDevices();
+            // If there are paired devices
+            if (pairedDevices.size() > 0) {
+                // Loop through paired devices
+                for (BluetoothDevice device : pairedDevices) {
+                    if (device.getName().contains("iTPMS")) {
+                        address = device.getAddress();
+                        Log.d(TAG, "Paired iTPMSystem found: " + device.getName() + " " + device.getAddress());
+                    }
+                }
+                if (address == null) {
+                    Toast.makeText(MainActivity.this,
+                            "No previously paired iTPMSystem found.  You will need to pair the iTPMSystem with your device.",
+                            Toast.LENGTH_LONG).show();
+                    return false;
                 }
             }
-            if (address == null) {
+            if (address != null){
+                // Set up a pointer to the remote node using it's address.
+                BluetoothDevice device = btAdapter.getRemoteDevice(address);
+
+                // Two things are needed to make a connection:
+                //   A MAC address, which we got above.
+                //   A Service ID or UUID.  In this case we are using the
+                //     UUID for SPP.
+
+                try {
+                    btSocket = createBluetoothSocket(device);
+                } catch (IOException e) {
+                    Log.d(TAG,"Bluetooth socket create failed: " + e.getMessage() + ".");
+                    return false;
+                }
+
+                // Discovery is resource intensive.  Make sure it isn't going on
+                // when you attempt to connect and pass your message.
+                btAdapter.cancelDiscovery();
+
+                // Establish the connection.  This will block until it connects.
+                Log.d(TAG, "Connecting to the iTPMSystem...");
+                try {
+                    btSocket.connect();
+                    Log.d(TAG, "Connected to: " + device.getName() + " " + device.getAddress());
+                    Toast.makeText(MainActivity.this,
+                            "Connected to: " + device.getName() + " " + device.getAddress(),
+                            Toast.LENGTH_LONG).show();
+                } catch (IOException e) {
+                    try {
+                        btSocket.close();
+                        return false;
+                    } catch (IOException e2) {
+                        Log.d(TAG,"Unable to close socket during connection failure");
+                        return false;
+                    }
+                }
+
+                ConnectedThread mConnectedThread = new ConnectedThread(btSocket);
+                mConnectedThread.start();
+            } else {
                 Toast.makeText(MainActivity.this,
                         "No previously paired iTPMSystem found.  You will need to pair the iTPMSystem with your device.",
                         Toast.LENGTH_LONG).show();
                 return false;
             }
+            return true;
         }
-        if (address != null){
-            // Set up a pointer to the remote node using it's address.
-            BluetoothDevice device = btAdapter.getRemoteDevice(address);
-
-            // Two things are needed to make a connection:
-            //   A MAC address, which we got above.
-            //   A Service ID or UUID.  In this case we are using the
-            //     UUID for SPP.
-
-            try {
-                btSocket = createBluetoothSocket(device);
-            } catch (IOException e) {
-                Log.d(TAG,"Bluetooth socket create failed: " + e.getMessage() + ".");
-                return false;
-            }
-
-            // Discovery is resource intensive.  Make sure it isn't going on
-            // when you attempt to connect and pass your message.
-            btAdapter.cancelDiscovery();
-
-            // Establish the connection.  This will block until it connects.
-            Log.d(TAG, "Connecting to the iTPMSystem...");
-            try {
-                btSocket.connect();
-                Log.d(TAG, "Connected to: " + device.getName() + " " + device.getAddress());
-                Toast.makeText(MainActivity.this,
-                        "Connected to: " + device.getName() + " " + device.getAddress(),
-                        Toast.LENGTH_LONG).show();
-            } catch (IOException e) {
-                try {
-                    btSocket.close();
-                    return false;
-                } catch (IOException e2) {
-                    Log.d(TAG,"Unable to close socket during connection failure");
-                    return false;
-                }
-            }
-
-            ConnectedThread mConnectedThread = new ConnectedThread(btSocket);
-            mConnectedThread.start();
-        } else {
-            Toast.makeText(MainActivity.this,
-                    "No previously paired iTPMSystem found.  You will need to pair the iTPMSystem with your device.",
-                    Toast.LENGTH_LONG).show();
-            return false;
-        }
-        return true;
+        Log.d(TAG, "Bluetooth not supported");
+        return false;
     }
 
     // Close Bluetooth Socket
