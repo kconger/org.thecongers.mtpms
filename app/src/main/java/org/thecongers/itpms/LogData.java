@@ -23,10 +23,8 @@ public class LogData {
             File root = new File(Environment.getExternalStorageDirectory() + "/itpms/");
             if(!root.exists()) {
                 root.mkdirs();
-            } else {
-                Log.d(TAG, "Directory already exists");
             }
-            if( root.canWrite() )
+            if(root.canWrite())
             {
                 Log.d(TAG,"Initialize Logging");
                 // Get current time in UTC
@@ -46,9 +44,9 @@ public class LogData {
         }
     }
 
-    public static void write( String wheel, String pressure, String temperature, String voltage )
+    public void write(String wheel, String pressure, String temperature, String voltage)
     {
-        if( outFile == null )
+        if(outFile == null)
             initialize();
 
         // Get current time in UTC
@@ -62,9 +60,9 @@ public class LogData {
         outFile.flush();
     }
 
-    public static void shutdown()
+    public void shutdown()
     {
-        if( outFile != null )
+        if(outFile != null)
             outFile.close();
     }
 }

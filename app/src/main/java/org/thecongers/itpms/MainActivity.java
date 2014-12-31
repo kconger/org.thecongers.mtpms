@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -65,7 +64,7 @@ public class MainActivity extends Activity {
     private String svgFUILive;
     private String svgRUILive;
 
-    static sensorIdDatabase sensorDB;
+    static SensorIdDatabase sensorDB;
     LogData logger = null;
 
     TextView txtOutput;
@@ -77,7 +76,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         setContentView(R.layout.activity_main);
-        sensorDB = new sensorIdDatabase(this);
+        sensorDB = new SensorIdDatabase(this);
 
         // Keep screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -229,10 +228,7 @@ public class MainActivity extends Activity {
                                         // Check for data logging enabled
                                         if (sharedPrefs.getBoolean("prefDataLogging", false)) {
                                             // Log data
-                                            if (logger == null){
-                                                logger = new LogData();
-                                            }
-                                            LogData.write("front", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
+                                            logger.write("front", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
                                         }
                                         int notificationID = 0;
                                         if (psi <= fLowPressure) {
@@ -251,7 +247,6 @@ public class MainActivity extends Activity {
                                             if (colorFadeFront == null) {
                                                 alertAnimation(imageView, 0);
                                             }
-
                                         } else {
                                             if (notificationManager != null) {
                                                 notificationManager.cancel(notificationID);
@@ -280,9 +275,6 @@ public class MainActivity extends Activity {
                                         // Check for data logging enabled
                                         if (sharedPrefs.getBoolean("prefDataLogging", false)) {
                                             // Log data
-                                            if (logger == null) {
-                                                logger = new LogData();
-                                            }
                                             logger.write("rear", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
                                         }
                                         int notificationID = 1;
@@ -327,10 +319,6 @@ public class MainActivity extends Activity {
                                             Log.d(TAG, "SVG Parse Exception");
                                         }
                                     }
-                                    // Tell widget to update
-                                    iTPMSWidgetProvider.updateWidgetContent(getBaseContext(),
-                                            AppWidgetManager.getInstance(getBaseContext()));
-
                                 } catch (NumberFormatException e) {
                                     Log.d(TAG, "Malformed message, unexpected value");
                                 }
@@ -468,7 +456,7 @@ public class MainActivity extends Activity {
     // Update UI when settings are updated
     private void updateUserSettings()
     {
-        // Update logging status
+        // Shutdown Logger
         if (!sharedPrefs.getBoolean("prefDataLogging", false) && (logger != null)) {
             logger.shutdown();
         }
@@ -535,7 +523,6 @@ public class MainActivity extends Activity {
 
             ConnectedThread mConnectedThread = new ConnectedThread(btSocket);
             mConnectedThread.start();
-
         } else {
             Toast.makeText(MainActivity.this,
                     "No previously paired iTPMSystem found.  You will need to pair the iTPMSystem with your device.",
@@ -547,7 +534,6 @@ public class MainActivity extends Activity {
 
     // Close Bluetooth Socket
     private void btReset() {
-
         if (btSocket != null) {
             try {
                 btSocket.close();
@@ -594,7 +580,6 @@ public class MainActivity extends Activity {
     // Check current Bluetooth state
     private void checkBTState() {
         // Check for Bluetooth support and then check to make sure it is turned on
-        // Emulator doesn't support Bluetooth and will return null
         if(btAdapter==null) {
             Log.d(TAG, "Bluetooth not supported");
         } else {
@@ -621,7 +606,6 @@ public class MainActivity extends Activity {
             } catch (IOException e) {
                 Log.d(TAG, "IO Exception getting input stream");
             }
-
             mmInStream = tmpInput;
         }
 

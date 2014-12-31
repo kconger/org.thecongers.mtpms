@@ -6,7 +6,7 @@
 
     <string name="front_wheel_desc">Front Wheel</string>
     <string name="back_wheel_desc">Back Wheel</string>
-    
+
     <string name="action_settings">Settings</string>
     <string name="action_sensorReset">Reset Sensor IDs</string>
     <string name="action_exit">Exit</string>
@@ -46,22 +46,15 @@
     <string name="pref_notificationLED_summary">Enable LED</string>
 
     <string name="front_wheel_settings_title">Front Wheel Settings</string>
-    <string name="pref_front_id_name">Front Wheel Sensor ID</string>
-    <string name="pref_front_id_summary">Select the front sensor ID</string>
-    <string name="pref_front_low_pressure_name">Front Low Pressure</string>
-    <string name="pref_front_low_pressure_summary">Front Low Pressure Alert Threshold</string>
-    <string name="pref_front_high_pressure_name">Front High Pressure</string>
-    <string name="pref_front_high_pressure_summary">Front High Pressure Alert Threshold</string>
-
     <string name="rear_wheel_settings_title">Rear Wheel Settings</string>
-    <string name="pref_rear_id_name">Rear Wheel Sensor ID</string>
-    <string name="pref_rear_id_summary">Select the rear sensor ID</string>
-    <string name="pref_rear_low_pressure_name">Rear Low Pressure</string>
-    <string name="pref_rear_low_pressure_summary">Rear Low Pressure Alert Threshold</string>    
-    <string name="pref_rear_high_pressure_name">Rear High Pressure</string>
-    <string name="pref_rear_high_pressure_summary">Rear High Pressure Alert Threshold</string>
+    <string name="pref_id_name">Wheel Sensor ID</string>
+    <string name="pref_id_summary">Select Sensor ID</string>
+    <string name="pref_low_pressure_name">Low Pressure</string>
+    <string name="pref_low_pressure_summary">Low Pressure Alert Threshold</string>
+    <string name="pref_high_pressure_name">High Pressure</string>
+    <string name="pref_high_pressure_summary">High Pressure Alert Threshold</string>
 
     <string name="advanced_settings_title">Advanced Settings</string>
     <string name="pref_dataLogging_name">Data Logging</string>
-    <string name="pref_dataLogging_summary">Enable data logging to /sdcard/itpms/</string>
+    <string name="pref_dataLogging_summary">Enable Data Logging To /sdcard/itpms/</string>
 </resources>

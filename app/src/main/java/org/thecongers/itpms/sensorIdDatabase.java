@@ -9,21 +9,18 @@ import android.util.Log;
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 
-public class sensorIdDatabase extends SQLiteAssetHelper {
+public class SensorIdDatabase extends SQLiteAssetHelper {
     public static final String TAG = "iTPMS_DB";
     private static final String DATABASE_NAME = "discoveredSensorID.db";
     private static final int DATABASE_VERSION = 1;
 
-    public sensorIdDatabase(Context context) {
-
+    public SensorIdDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         setForcedUpgrade();
-
     }
 
     // Return all sensor IDs from the database
     public Cursor getAllSensorIDs() {
-
         Log.d(TAG, "Returning sensor IDs from DB");
         SQLiteDatabase db = this.getReadableDatabase();
         String sqlTables = "sensorIDs";
@@ -31,13 +28,11 @@ public class sensorIdDatabase extends SQLiteAssetHelper {
         if (c != null) {
             c.moveToFirst();
         }
-
         return c;
     }
 
     // Check if sensor ID is in the DB
     public boolean sensorIdExists(String id) {
-
         Log.d(TAG, "Checking for sensor ID in DB");
         SQLiteDatabase db = this.getReadableDatabase();
         String sqlTables = "sensorIDs";
@@ -63,7 +58,6 @@ public class sensorIdDatabase extends SQLiteAssetHelper {
 
     // Add sensor ID to database
     void addID(String id) {
-
         Log.d(TAG, "Adding sensor ID to DB");
         SQLiteDatabase db = this.getWritableDatabase();
         String sqlTables = "sensorIDs";
@@ -74,7 +68,6 @@ public class sensorIdDatabase extends SQLiteAssetHelper {
         // Inserting Row
         db.insert(sqlTables, null, values);
         db.close();
-
     }
 
     // Purge IDs
@@ -87,6 +80,5 @@ public class sensorIdDatabase extends SQLiteAssetHelper {
         db.delete(sqlTables, null, null);
         db.execSQL("VACUUM");
         db.close();
-
     }
 }

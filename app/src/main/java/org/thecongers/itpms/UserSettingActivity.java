@@ -17,7 +17,6 @@ public class UserSettingActivity extends PreferenceActivity {
 	
 	public static class UserSettingActivityFragment extends PreferenceFragment
     {
-
         @Override
         public void onCreate(final Bundle savedInstanceState)
         {
@@ -34,8 +33,7 @@ public class UserSettingActivity extends PreferenceActivity {
 
     // Dynamically populate the sensor ID list preferences
     protected static void setListPreferenceData(ListPreference lp) {
-
-        sensorIdDatabase sensorDB;
+        SensorIdDatabase sensorDB;
         sensorDB = MainActivity.sensorDB;
 
         CharSequence[] entries = null;
@@ -59,5 +57,4 @@ public class UserSettingActivity extends PreferenceActivity {
         lp.setEntries(entries);
         lp.setEntryValues(entryValues);
     }
-
 }

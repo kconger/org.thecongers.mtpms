@@ -1,0 +1,23 @@
+iTPMS
+Author: Keith Conger <keith.conger@gmail.com>
+http://itpms.thecongers.org
+License: GPLv2
+
+Motorcycle iTPMS Client Software
+
+Requires:
+* An iTPMSystem (http://www.atbs.com.tw/product_TPMS_Module_E.htm)
+
+Current Features:
+* Sensor discovery
+* Displays tire pressure, temperature and voltage
+* User configurable units for pressure and temperature
+* User configurable notifications for low/high tire pressure (Sound, vibrate and LED)
+* Optional data logging in csv format to /sdcard/itpms
+
+Software Used:
+Android SQLiteAssetHelper
+https://github.com/jgilfelt/android-sqlite-asset-helper
+
+AndroidSVG
+https://bitbucket.org/paullebeau/androidsvg
