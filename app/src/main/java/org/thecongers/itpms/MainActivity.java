@@ -181,7 +181,9 @@ public class MainActivity extends Activity {
                             String prefFrontID = sharedPrefs.getString("prefFrontID", "");
                             String prefRearID = sharedPrefs.getString("prefRearID", "");
                             if (!prefFrontID.equals("") || !prefRearID.equals("")) {
-
+                                if (txtOutput.getText().toString().contains("Please map")){
+                                    txtOutput.setText("");
+                                }
                                 try {
                                     // Get temperature
                                     int tempC = Integer.parseInt(hexData[8], 16) - 50;
@@ -248,6 +250,7 @@ public class MainActivity extends Activity {
                                                 alertAnimation(imageView, 0);
                                             }
                                         } else {
+                                            txtOutput.setText("");
                                             if (notificationManager != null) {
                                                 notificationManager.cancel(notificationID);
                                             }
@@ -297,6 +300,7 @@ public class MainActivity extends Activity {
                                             }
 
                                         } else {
+                                            txtOutput.setText("");
                                             if (notificationManager != null) {
                                                 notificationManager.cancel(notificationID);
                                             }
@@ -621,6 +625,7 @@ public class MainActivity extends Activity {
                     h.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
                 } catch (IOException e) {
                     Log.d(TAG, "IO Exception while reading stream");
+                    txtOutput.setText("Lost connection to iTPMS!");
                     btReset();
                     break;
                 }
