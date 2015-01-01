@@ -22,7 +22,6 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -42,6 +41,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,7 +62,7 @@ import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.UUID;
  
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
     final int RECEIVE_MESSAGE = 1;		// Status for Handler
     private static final int SETTINGS_RESULT = 1;
     private SharedPreferences sharedPrefs;

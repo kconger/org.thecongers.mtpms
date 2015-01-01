@@ -45,6 +45,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="bottom"
             android:gravity="bottom"
+            android:elevation="5dp"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
     </LinearLayout>
