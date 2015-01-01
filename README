@@ -14,6 +14,7 @@ Current Features:
 * User configurable units for pressure and temperature
 * User configurable notifications for low/high tire pressure (Sound, vibrate and LED)
 * Optional data logging in csv format to /sdcard/itpms
+* English language, please contact me if you would like to help with a translation
 
 Howto Use:
 1) Power on the iTPMSystem

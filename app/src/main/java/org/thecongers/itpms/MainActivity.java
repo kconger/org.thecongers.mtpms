@@ -1,3 +1,21 @@
+/*
+Copyright (C) 2014 Keith Conger <keith.conger@gmail.com>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 package org.thecongers.itpms;
 
 import android.animation.ArgbEvaluator;
@@ -335,7 +353,7 @@ public class MainActivity extends Activity {
             }
         };
 
-        // Try to connect to iTPMS
+        // Try to connect to iTPMSystem
         btConnect();
     }
 
@@ -466,9 +484,9 @@ public class MainActivity extends Activity {
         }
     }
 
-    // Connect to iTPMS
+    // Connect to iTPMSystem
     private boolean btConnect() {
-        btAdapter = BluetoothAdapter.getDefaultAdapter();		// get Bluetooth adapter
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
         checkBTState();
         if(btAdapter!=null) {
             pairedDevices = btAdapter.getBondedDevices();
@@ -629,7 +647,7 @@ public class MainActivity extends Activity {
                     h.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
                 } catch (IOException e) {
                     Log.d(TAG, "IO Exception while reading stream");
-                    txtOutput.setText("Lost connection to iTPMS!");
+                    txtOutput.setText("Lost connection to iTPMSystem!");
                     btReset();
                     break;
                 }
