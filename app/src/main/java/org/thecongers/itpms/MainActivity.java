@@ -18,9 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.thecongers.itpms;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -67,8 +64,11 @@ public class MainActivity extends ActionBarActivity {
     private static final int SETTINGS_RESULT = 1;
     private SharedPreferences sharedPrefs;
     private NotificationManager notificationManager;
-    private ObjectAnimator colorFadeFront = null;
-    private ObjectAnimator colorFadeRear = null;
+
+    private ImageView  imageView;
+    private ImageView  imageView2;
+    private Drawable background;
+    private Drawable redBackground;
 
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
@@ -82,6 +82,9 @@ public class MainActivity extends ActionBarActivity {
     private String svgFUILive;
     private String svgRUILive;
 
+    private int frontStatus = 0;
+    private int rearStatus = 0;
+
     static SensorIdDatabase sensorDB;
     LogData logger = null;
 
@@ -94,7 +97,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         setContentView(R.layout.activity_main);
-        sensorDB = new SensorIdDatabase(this);
+        txtOutput = (TextView) findViewById(R.id.txtOutput);
 
         // Keep screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -106,6 +109,12 @@ public class MainActivity extends ActionBarActivity {
         this.registerReceiver(btReceiver, filter1);
         this.registerReceiver(btReceiver, filter2);
         this.registerReceiver(btReceiver, filter3);
+
+        sensorDB = new SensorIdDatabase(this);
+
+        // Backgrounds
+        background = this.getResources().getDrawable(R.drawable.rectangle_bordered);
+        redBackground = this.getResources().getDrawable(R.drawable.rectangle_bordered_red);
 
         // Draw gauges
         String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
@@ -131,7 +140,7 @@ public class MainActivity extends ActionBarActivity {
         svgFUILive = svgFUILive.replaceAll("VVV", "---");
         svgFUILive = svgFUILive.replaceAll("PSI", pressureUnit);
         svgFUILive = svgFUILive.replaceAll("TU", temperatureUnit);
-        final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
+        imageView = (ImageView) findViewById(R.id.imageView1);
         imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
         svgRUILive = svgUI.replaceAll("PP", "--");
@@ -139,7 +148,7 @@ public class MainActivity extends ActionBarActivity {
         svgRUILive = svgRUILive.replaceAll("VVV", "---");
         svgRUILive = svgRUILive.replaceAll("PSI", pressureUnit);
         svgRUILive = svgRUILive.replaceAll("TU", temperatureUnit);
-        final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
+        imageView2 = (ImageView) findViewById(R.id.imageView2);
         imageView2.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         try
         {
@@ -155,7 +164,6 @@ public class MainActivity extends ActionBarActivity {
         }
 
         // Check if there are sensor to wheel mappings
-        txtOutput = (TextView) findViewById(R.id.txtOutput);
         if (sharedPrefs.getString("prefFrontID", "").equals("") && sharedPrefs.getString("prefRearID", "").equals("")) {
             txtOutput.setText("Please map discovered sensor IDs to wheels!");
         }
@@ -248,34 +256,31 @@ public class MainActivity extends ActionBarActivity {
                                         // Check for data logging enabled
                                         if (sharedPrefs.getBoolean("prefDataLogging", false)) {
                                             // Log data
-                                            logger.write("front", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
+                                            if (logger == null) {
+                                                logger = new LogData();
+                                            }
+                                            logger.write("rear", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
                                         }
                                         int notificationID = 0;
                                         if (psi <= fLowPressure) {
+                                            frontStatus = 1;
                                             // Send notification
                                             Notify("iTPMS", "Low front tire pressure!", notificationID);
-                                            txtOutput.setText("Low front tire pressure!");
-                                            // Fade background in and out
-                                            if (colorFadeFront == null) {
-                                                alertAnimation(imageView, 0);
-                                            }
+                                            // Set background to red
+                                            imageView.setBackground(redBackground);
                                         } else if (psi >= fHighPressure) {
+                                            frontStatus = 2;
                                             // Send notification
                                             Notify("iTPMS", "High front tire pressure!", notificationID);
-                                            txtOutput.setText("High front tire pressure!");
-                                            // Fade background in and out
-                                            if (colorFadeFront == null) {
-                                                alertAnimation(imageView, 0);
-                                            }
+                                            // Set background to red
+                                            imageView.setBackground(redBackground);
                                         } else {
-                                            txtOutput.setText("");
+                                            frontStatus = 0;
                                             if (notificationManager != null) {
                                                 notificationManager.cancel(notificationID);
                                             }
-                                            if (colorFadeFront != null) {
-                                                colorFadeFront.cancel();
-                                                colorFadeFront = null;
-                                            }
+                                            // Reset background
+                                            imageView.setBackground(background);
                                         }
                                         String svgFUI = readRawTextFile(MainActivity.this, R.raw.ui);
                                         svgFUILive = svgFUI.replaceAll("PP", String.valueOf(formattedPressure));
@@ -296,36 +301,32 @@ public class MainActivity extends ActionBarActivity {
                                         // Check for data logging enabled
                                         if (sharedPrefs.getBoolean("prefDataLogging", false)) {
                                             // Log data
+                                            if (logger == null) {
+                                                logger = new LogData();
+                                            }
                                             logger.write("rear", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
                                         }
                                         int notificationID = 1;
                                         if (psi <= rLowPressure) {
+                                            rearStatus = 1;
                                             // Send notification
                                             Notify("iTPMS", "Low rear tire pressure!", notificationID);
-                                            txtOutput.setText("Low rear tire pressure!");
-                                            // Fade background in and out
-                                            if (colorFadeRear == null) {
-                                                alertAnimation(imageView2, 1);
-                                            }
-
+                                            // Set background to red
+                                            imageView2.setBackground(redBackground);
                                         } else if (psi >= rHighPressure) {
+                                            rearStatus = 2;
                                             // Send notification
                                             Notify("iTPMS", "High rear tire pressure!", notificationID);
-                                            txtOutput.setText("High rear tire pressure!");
-                                            // Fade background in and out
-                                            if (colorFadeRear == null) {
-                                                alertAnimation(imageView2, 1);
-                                            }
+                                            // Set background to red
+                                            imageView2.setBackground(redBackground);
 
                                         } else {
-                                            txtOutput.setText("");
+                                            rearStatus = 0;
                                             if (notificationManager != null) {
                                                 notificationManager.cancel(notificationID);
                                             }
-                                            if (colorFadeRear != null) {
-                                                colorFadeRear.cancel();
-                                                colorFadeRear = null;
-                                            }
+                                            // Reset background[[
+                                            imageView2.setBackground(background);
                                         }
                                         String svgRUI = readRawTextFile(MainActivity.this, R.raw.ui);
                                         svgRUILive = svgRUI.replaceAll("PP", String.valueOf(formattedPressure));
@@ -340,6 +341,26 @@ public class MainActivity extends ActionBarActivity {
                                         } catch (SVGParseException e) {
                                             Log.d(TAG, "SVG Parse Exception");
                                         }
+                                    }
+                                    // Update txtOutput box
+                                    if ((frontStatus == 0) && (rearStatus == 0)){
+                                        txtOutput.setText("");
+                                    } else if ((frontStatus == 1) && (rearStatus == 0)){
+                                        txtOutput.setText("Low front tire pressure!");
+                                    } else if ((frontStatus == 2) && (rearStatus == 0)){
+                                        txtOutput.setText("High front tire pressure!");
+                                    } else if ((rearStatus == 1) && (frontStatus == 0)){
+                                        txtOutput.setText("Low rear tire pressure!");
+                                    } else if ((rearStatus == 2) && (frontStatus == 0)){
+                                        txtOutput.setText("High rear tire pressure!");
+                                    } else if ((frontStatus == 1) && (rearStatus == 1)){
+                                        txtOutput.setText("Low front and rear tire pressure!");
+                                    } else if ((frontStatus == 2) && (rearStatus == 2)){
+                                        txtOutput.setText("High front and rear tire pressure!");
+                                    } else if ((frontStatus == 1) && (rearStatus == 2)){
+                                        txtOutput.setText("Low front and High rear tire pressure!");
+                                    } else if ((frontStatus == 2) && (rearStatus == 1)){
+                                        txtOutput.setText("High front and Low rear tire pressure!");
                                     }
                                 } catch (NumberFormatException e) {
                                     Log.d(TAG, "Malformed message, unexpected value");
@@ -364,8 +385,8 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         // Restore Gauges
-        final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
-        final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
+        final ImageView  imageViewL = (ImageView) findViewById(R.id.imageView1);
+        final ImageView  imageViewL2 = (ImageView) findViewById(R.id.imageView2);
         String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
         String pressureUnit = "psi";
         if (pressureFormat.contains("1")) {
@@ -403,22 +424,20 @@ public class MainActivity extends ActionBarActivity {
             SVG svgR = SVG.getFromString(svgRUILive);
             Drawable drawableF = new PictureDrawable(svgF.renderToPicture());
             Drawable drawableR = new PictureDrawable(svgR.renderToPicture());
-            imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            imageView2.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            imageView.setImageDrawable(drawableF);
-            imageView2.setImageDrawable(drawableR);
+            imageViewL.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            imageViewL2.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            imageViewL.setImageDrawable(drawableF);
+            imageViewL2.setImageDrawable(drawableR);
         }
         catch(SVGParseException e){
             Log.d(TAG, "SVG Parse Exception");
         }
 
-        // Restore animation
-        if (colorFadeFront != null){
-            alertAnimation(imageView, 0);
-        }
-        if (colorFadeRear != null){
-            alertAnimation(imageView2, 1);
-        }
+        // Restore background
+        Drawable currentFrontBackground = imageView.getBackground();
+        imageViewL.setBackground(currentFrontBackground);
+        Drawable currentRearBackground = imageView2.getBackground();
+        imageViewL2.setBackground(currentRearBackground);
 
         // Restore current message
         CharSequence currentTxt = txtOutput.getText();
@@ -501,7 +520,7 @@ public class MainActivity extends ActionBarActivity {
                 }
                 if (address == null) {
                     Toast.makeText(MainActivity.this,
-                            "No previously paired iTPMSystem found.  You will need to pair the iTPMSystem with your device.",
+                            "No previously paired iTPMSystem found.",
                             Toast.LENGTH_LONG).show();
                     return false;
                 }
@@ -548,7 +567,7 @@ public class MainActivity extends ActionBarActivity {
                 mConnectedThread.start();
             } else {
                 Toast.makeText(MainActivity.this,
-                        "No previously paired iTPMSystem found.  You will need to pair the iTPMSystem with your device.",
+                        "No previously paired iTPMSystem found.",
                         Toast.LENGTH_LONG).show();
                 return false;
             }
@@ -592,9 +611,7 @@ public class MainActivity extends ActionBarActivity {
             if ((BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) && (device.getName().contains("iTPMS"))) {
                 // Do something if connected
                 Log.d(TAG, "iTPMSystem Connected");
-                if (btSocket == null) {
-                    btConnect();
-                }
+                btConnect();
             }
             else if ((BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) && (device.getName().contains("iTPMS"))) {
                 // Do something if disconnected
@@ -647,7 +664,6 @@ public class MainActivity extends ActionBarActivity {
                     h.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
                 } catch (IOException e) {
                     Log.d(TAG, "IO Exception while reading stream");
-                    txtOutput.setText("Lost connection to iTPMSystem!");
                     btReset();
                     break;
                 }
@@ -694,7 +710,7 @@ public class MainActivity extends ActionBarActivity {
         Notification.Builder builder = new Notification.Builder(this);
         builder.setContentTitle(notificationTitle)
                 .setContentText(notificationMessage)
-                .setSmallIcon(R.drawable.app_icon)
+                .setSmallIcon(R.drawable.notification_icon)
                 .setContentIntent(pendingIntent);
         // Check for LED enabled
         if (sharedPrefs.getBoolean("prefNotificationLED", true)) {
@@ -716,30 +732,5 @@ public class MainActivity extends ActionBarActivity {
         notification.priority = Notification.PRIORITY_MAX;
         // Send notification
         notificationManager.notify(notificationID, notification);
-    }
-
-    // Alert Animation
-    private void alertAnimation(ImageView imageView, int location) {
-        if ( location == 0) {
-            if (colorFadeFront != null) {
-                colorFadeFront.cancel();
-            }
-            colorFadeFront = ObjectAnimator.ofObject(imageView, "backgroundColor", new ArgbEvaluator(), 0xffffffff, android.graphics.Color.RED);
-            colorFadeFront.setDuration(3000);
-            colorFadeFront.setRepeatCount(ValueAnimator.INFINITE);
-            colorFadeFront.setRepeatMode(ValueAnimator.REVERSE);
-            colorFadeFront.setAutoCancel(true);
-            colorFadeFront.start();
-        } else if ( location == 1) {
-            if (colorFadeRear != null) {
-                colorFadeRear.cancel();
-            }
-            colorFadeRear = ObjectAnimator.ofObject(imageView, "backgroundColor", new ArgbEvaluator(), 0xffffffff, android.graphics.Color.RED);
-            colorFadeRear.setDuration(3000);
-            colorFadeRear.setRepeatCount(ValueAnimator.INFINITE);
-            colorFadeRear.setRepeatMode(ValueAnimator.REVERSE);
-            colorFadeRear.setAutoCancel(true);
-            colorFadeRear.start();
-        }
     }
 }

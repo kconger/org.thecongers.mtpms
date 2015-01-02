@@ -52,10 +52,10 @@ public class LogData {
                 formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
                 String curdatetime = formatter.format(date);
 
-                File gpxfile = new File( root, "iTPMS-" + curdatetime + ".csv" );
-                FileWriter gpxwriter = new FileWriter( gpxfile );
-                outFile = new PrintWriter( gpxwriter );
-                outFile.write( "\nDate,Wheel,Pressure(psi),Temperature(Celsius),Voltage\n" );
+                File logFile = new File( root, "iTPMS-" + curdatetime + ".csv" );
+                FileWriter logWriter = new FileWriter( logFile );
+                outFile = new PrintWriter( logWriter );
+                outFile.write( "Date,Wheel,Pressure(psi),Temperature(Celsius),Voltage\n" );
             }
         } catch (IOException e) {
             Log.d(TAG, "Could not write to file: " + e.getMessage());

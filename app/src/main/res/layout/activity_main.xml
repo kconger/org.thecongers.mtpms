@@ -21,31 +21,34 @@
     	<ImageView
             android:id="@+id/imageView1"
             android:contentDescription="@string/front_wheel_desc"
-            android:layout_width="220dp"
-            android:layout_height="208dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/app_icon" />
-
-        <Space
             android:layout_width="match_parent"
-            android:layout_height="16dp"
-            android:layout_gravity="center_horizontal" />
+            android:layout_height="200dp"
+            android:scaleType="centerInside"
+            android:elevation="5dp"
+            android:background="@drawable/rectangle_bordered"
+            android:src="@drawable/app_icon"
+            android:layout_margin="10dp" />
 
         <ImageView
             android:id="@+id/imageView2"
             android:contentDescription="@string/back_wheel_desc"
-            android:layout_width="220dp"
-            android:layout_height="208dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/app_icon" />
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerInside"
+            android:elevation="5dp"
+            android:background="@drawable/rectangle_bordered"
+            android:src="@drawable/app_icon"
+            android:layout_margin="10dp" />
 
         <TextView
             android:id="@+id/txtOutput"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="bottom"
-            android:gravity="bottom"
+            android:gravity="center"
             android:elevation="5dp"
+            android:background="@drawable/rectangle"
+            android:layout_margin="10dp"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
     </LinearLayout>
