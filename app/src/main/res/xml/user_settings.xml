@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:title="@string/units_title" >
-    	<ListPreference
-           	android:key="preftempf"
-          	android:title="@string/pref_tempf_name"
+    <PreferenceCategory android:title="@string/ui_title" >
+        <ListPreference
+            android:key="preftempf"
+            android:title="@string/pref_tempf_name"
             android:entries="@array/tempf_array"
             android:entryValues="@array/tempf_arrayValues"
             android:defaultValue="0"
             />
-    	<ListPreference
-           	android:key="prefpressuref"
-          	android:title="@string/pref_pressuref_name"
+        <ListPreference
+            android:key="prefpressuref"
+            android:title="@string/pref_pressuref_name"
             android:entries="@array/pressuref_array"
             android:entryValues="@array/pressuref_arrayValues"
             android:defaultValue="0"
             />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="prefAutoNightMode"
+            android:summary="@string/pref_autoNightMode_summary"
+            android:title="@string/pref_autoNightMode_name" >
+        </CheckBoxPreference>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/notification_settings_title" >
         <RingtonePreference 
