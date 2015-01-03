@@ -70,8 +70,7 @@ public class MainActivity extends ActionBarActivity {
 
     private View root;
     TextView txtOutput;
-    private ImageView  imageView;
-    private ImageView  imageView2;
+
     private Drawable background;
     private Drawable redBackground;
     private Drawable backgroundDark;
@@ -105,6 +104,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         setContentView(R.layout.activity_main);
+        final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
+        final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
         txtOutput = (TextView) findViewById(R.id.txtOutput);
 
         View myView = findViewById(R.id.linearLayout0);
@@ -153,7 +154,7 @@ public class MainActivity extends ActionBarActivity {
         svgFUILive = svgFUILive.replaceAll("VVV", "---");
         svgFUILive = svgFUILive.replaceAll("PSI", pressureUnit);
         svgFUILive = svgFUILive.replaceAll("TU", temperatureUnit);
-        imageView = (ImageView) findViewById(R.id.imageView1);
+
         imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
         svgRUILive = svgUI.replaceAll("PP", "--");
@@ -161,7 +162,7 @@ public class MainActivity extends ActionBarActivity {
         svgRUILive = svgRUILive.replaceAll("VVV", "---");
         svgRUILive = svgRUILive.replaceAll("PSI", pressureUnit);
         svgRUILive = svgRUILive.replaceAll("TU", temperatureUnit);
-        imageView2 = (ImageView) findViewById(R.id.imageView2);
+
         imageView2.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         try
         {
@@ -364,7 +365,7 @@ public class MainActivity extends ActionBarActivity {
                                             if (notificationManager != null) {
                                                 notificationManager.cancel(notificationID);
                                             }
-                                            // Reset background[[
+                                            // Reset background
                                             if (itsDark){
                                                 imageView2.setBackground(backgroundDark);
                                             } else {
@@ -807,6 +808,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public void onSensorChanged(SensorEvent event) {
             if (sharedPrefs.getBoolean("prefAutoNightMode", false)) {
+                int delay = (Integer.parseInt(sharedPrefs.getString("prefAutoNightModeDelay", "30")) * 1000);
                 if(event.sensor.getType()==Sensor.TYPE_LIGHT){
                     float currentReading = event.values[0];
                     // TODO: Proper light value and duration
@@ -817,13 +819,13 @@ public class MainActivity extends ActionBarActivity {
                         } else {
                             long currentTime = System.currentTimeMillis();
                             long duration = (currentTime - darkTimer);
-                            if ((duration >= 5000) && (!itsDark)){ // divide be 1000 for secs
+                            if ((duration >= delay) && (!itsDark)){ // divide be 1000 for secs
                                 itsDark = true;
                                 Log.d(TAG,"Its night");
                                 // Redraw Screen
                                 final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
                                 final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
-                                root.setBackgroundColor(getResources().getColor(android.R.color.black));
+                                root.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
                                 if (frontStatus > 0) {
                                     imageView.setBackground(redBackgroundDark);
                                 } else {
@@ -859,7 +861,7 @@ public class MainActivity extends ActionBarActivity {
                         } else {
                             long currentTime = System.currentTimeMillis();
                             long duration = (currentTime - lightTimer);
-                            if ((duration >= 5000) && (itsDark)){
+                            if ((duration >= delay) && (itsDark)){
                                 itsDark = false;
                                 Log.d(TAG,"Its day");
                                 // Redraw Screen

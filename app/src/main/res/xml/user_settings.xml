@@ -21,6 +21,13 @@
             android:summary="@string/pref_autoNightMode_summary"
             android:title="@string/pref_autoNightMode_name" >
         </CheckBoxPreference>
+        <EditTextPreference
+            android:title="@string/pref_autoNightModeDelay_name"
+            android:summary="@string/pref_autoNightModeDelay_summary"
+            android:defaultValue="30"
+            android:inputType="number"
+            android:key="prefAutoNightModeDelay"
+            />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/notification_settings_title" >
         <RingtonePreference 
@@ -59,12 +66,14 @@
         	android:title="@string/pref_low_pressure_name"
             android:summary="@string/pref_low_pressure_summary"
             android:defaultValue="30"
+            android:inputType="number"
             android:key="prefFrontLowPressure"
             />
     	<EditTextPreference
         	android:title="@string/pref_high_pressure_name"
             android:summary="@string/pref_high_pressure_summary"
             android:defaultValue="46"
+            android:inputType="number"
             android:key="prefFrontHighPressure"
             />
     </PreferenceCategory>
@@ -78,12 +87,14 @@
         	android:title="@string/pref_low_pressure_name"
             android:summary="@string/pref_low_pressure_summary"
             android:defaultValue="30"
+            android:inputType="number"
             android:key="prefRearLowPressure"
             />
     	<EditTextPreference
         	android:title="@string/pref_high_pressure_name"
             android:summary="@string/pref_high_pressure_summary"
             android:defaultValue="46"
+            android:inputType="number"
             android:key="prefRearHighPressure"
             />
     </PreferenceCategory>
