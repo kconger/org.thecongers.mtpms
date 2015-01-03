@@ -75,6 +75,8 @@ public class MainActivity extends ActionBarActivity {
     private Drawable redBackground;
     private Drawable backgroundDark;
     private Drawable redBackgroundDark;
+    private Drawable txtOutBackground;
+    private Drawable txtOutBackgroundDark;
 
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
@@ -129,6 +131,8 @@ public class MainActivity extends ActionBarActivity {
         redBackground = this.getResources().getDrawable(R.drawable.rectangle_bordered_red);
         backgroundDark = this.getResources().getDrawable(R.drawable.rectangle_bordered_dark);
         redBackgroundDark = this.getResources().getDrawable(R.drawable.rectangle_bordered_red_dark);
+        txtOutBackground = this.getResources().getDrawable(R.drawable.rectangle);
+        txtOutBackgroundDark = this.getResources().getDrawable(R.drawable.rectangle_dark);
 
         // Draw gauges
         String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
@@ -410,6 +414,13 @@ public class MainActivity extends ActionBarActivity {
                                     } else if ((frontStatus == 2) && (rearStatus == 1)){
                                         txtOutput.setText("High front and Low rear tire pressure!");
                                     }
+                                    if (!itsDark) {
+                                        txtOutput.setBackground(txtOutBackground);
+                                        txtOutput.setTextColor(getResources().getColor(android.R.color.white));
+                                    } else {
+                                        txtOutput.setBackground(txtOutBackgroundDark);
+                                        txtOutput.setTextColor(getResources().getColor(android.R.color.black));
+                                    }
                                 } catch (NumberFormatException e) {
                                     Log.d(TAG, "Malformed message, unexpected value");
                                 }
@@ -468,8 +479,14 @@ public class MainActivity extends ActionBarActivity {
         catch(SVGParseException e){
             Log.d(TAG, "SVG Parse Exception");
         }
+        // Text
+        CharSequence currentTxt = txtOutput.getText();
+        txtOutput= (TextView) findViewById(R.id.txtOutput);
+        txtOutput.setText(currentTxt);
         // Background
         if (!itsDark){
+            txtOutput.setBackground(txtOutBackground);
+            txtOutput.setTextColor(getResources().getColor(android.R.color.white));
             if (frontStatus > 0) {
                 imageView.setBackground(redBackground);
             } else {
@@ -480,7 +497,10 @@ public class MainActivity extends ActionBarActivity {
             } else {
                 imageView2.setBackground(background);
             }
+
         } else {
+            txtOutput.setBackground(txtOutBackgroundDark);
+            txtOutput.setTextColor(getResources().getColor(android.R.color.black));
             if (frontStatus > 0) {
                 imageView.setBackground(redBackgroundDark);
             } else {
@@ -492,10 +512,6 @@ public class MainActivity extends ActionBarActivity {
                 imageView2.setBackground(backgroundDark);
             }
         }
-        // Text
-        CharSequence currentTxt = txtOutput.getText();
-        txtOutput= (TextView) findViewById(R.id.txtOutput);
-        txtOutput.setText(currentTxt);
     }
 
     //Draw options menu
@@ -811,7 +827,7 @@ public class MainActivity extends ActionBarActivity {
                 int delay = (Integer.parseInt(sharedPrefs.getString("prefAutoNightModeDelay", "30")) * 1000);
                 if(event.sensor.getType()==Sensor.TYPE_LIGHT){
                     float currentReading = event.values[0];
-                    // TODO: Proper light value and duration
+                    // TODO: Proper light value
                     if (currentReading < 20.0){
                         lightTimer = 0;
                         if (darkTimer == 0){
@@ -826,6 +842,7 @@ public class MainActivity extends ActionBarActivity {
                                 final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
                                 final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
                                 root.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
+                                txtOutput.setBackground(txtOutBackgroundDark);
                                 if (frontStatus > 0) {
                                     imageView.setBackground(redBackgroundDark);
                                 } else {
@@ -868,6 +885,7 @@ public class MainActivity extends ActionBarActivity {
                                 final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
                                 final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
                                 root.setBackgroundColor(getResources().getColor(android.R.color.white));
+                                txtOutput.setBackground(txtOutBackground);
                                 if (frontStatus > 0) {
                                     imageView.setBackground(redBackground);
                                 } else {
