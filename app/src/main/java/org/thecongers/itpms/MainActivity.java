@@ -181,6 +181,8 @@ public class MainActivity extends ActionBarActivity {
             Log.d(TAG, "SVG Parse Exception");
         }
 
+        txtOutput.setBackground(txtOutBackground);
+        txtOutput.setTextColor(getResources().getColor(android.R.color.black));
         // Check if there are sensor to wheel mappings
         if (sharedPrefs.getString("prefFrontID", "").equals("") && sharedPrefs.getString("prefRearID", "").equals("")) {
             txtOutput.setText("Please map discovered sensor IDs to wheels!");
@@ -416,10 +418,10 @@ public class MainActivity extends ActionBarActivity {
                                     }
                                     if (!itsDark) {
                                         txtOutput.setBackground(txtOutBackground);
-                                        txtOutput.setTextColor(getResources().getColor(android.R.color.white));
+                                        txtOutput.setTextColor(getResources().getColor(android.R.color.black));
                                     } else {
                                         txtOutput.setBackground(txtOutBackgroundDark);
-                                        txtOutput.setTextColor(getResources().getColor(android.R.color.black));
+                                        txtOutput.setTextColor(getResources().getColor(android.R.color.white));
                                     }
                                 } catch (NumberFormatException e) {
                                     Log.d(TAG, "Malformed message, unexpected value");
@@ -486,7 +488,7 @@ public class MainActivity extends ActionBarActivity {
         // Background
         if (!itsDark){
             txtOutput.setBackground(txtOutBackground);
-            txtOutput.setTextColor(getResources().getColor(android.R.color.white));
+            txtOutput.setTextColor(getResources().getColor(android.R.color.black));
             if (frontStatus > 0) {
                 imageView.setBackground(redBackground);
             } else {
@@ -500,7 +502,7 @@ public class MainActivity extends ActionBarActivity {
 
         } else {
             txtOutput.setBackground(txtOutBackgroundDark);
-            txtOutput.setTextColor(getResources().getColor(android.R.color.black));
+            txtOutput.setTextColor(getResources().getColor(android.R.color.white));
             if (frontStatus > 0) {
                 imageView.setBackground(redBackgroundDark);
             } else {
@@ -827,7 +829,7 @@ public class MainActivity extends ActionBarActivity {
                 int delay = (Integer.parseInt(sharedPrefs.getString("prefAutoNightModeDelay", "30")) * 1000);
                 if(event.sensor.getType()==Sensor.TYPE_LIGHT){
                     float currentReading = event.values[0];
-                    // TODO: Proper light value
+                    // TODO: Proper light value for night & should I be using a timer instead of waiting for a sensor change?
                     if (currentReading < 20.0){
                         lightTimer = 0;
                         if (darkTimer == 0){
@@ -841,8 +843,9 @@ public class MainActivity extends ActionBarActivity {
                                 // Redraw Screen
                                 final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
                                 final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
-                                root.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
+                                root.setBackgroundColor(getResources().getColor(android.R.color.black));
                                 txtOutput.setBackground(txtOutBackgroundDark);
+                                txtOutput.setTextColor(getResources().getColor(android.R.color.white));
                                 if (frontStatus > 0) {
                                     imageView.setBackground(redBackgroundDark);
                                 } else {
@@ -886,6 +889,7 @@ public class MainActivity extends ActionBarActivity {
                                 final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
                                 root.setBackgroundColor(getResources().getColor(android.R.color.white));
                                 txtOutput.setBackground(txtOutBackground);
+                                txtOutput.setTextColor(getResources().getColor(android.R.color.black));
                                 if (frontStatus > 0) {
                                     imageView.setBackground(redBackground);
                                 } else {
