@@ -153,7 +153,7 @@ public class MainActivity extends ActionBarActivity {
             temperatureUnit = "F";
         }
         String svgUI = readRawTextFile(this, R.raw.ui);
-        svgFUILive = svgUI.replaceAll("PP", "--");
+        svgFUILive = svgUI.replaceAll("PP", "---");
         svgFUILive = svgFUILive.replaceAll("TTT", "---");
         svgFUILive = svgFUILive.replaceAll("VVV", "---");
         svgFUILive = svgFUILive.replaceAll("PSI", pressureUnit);
@@ -161,7 +161,7 @@ public class MainActivity extends ActionBarActivity {
 
         imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-        svgRUILive = svgUI.replaceAll("PP", "--");
+        svgRUILive = svgUI.replaceAll("PP", "---");
         svgRUILive = svgRUILive.replaceAll("TTT", "---");
         svgRUILive = svgRUILive.replaceAll("VVV", "---");
         svgRUILive = svgRUILive.replaceAll("PSI", pressureUnit);
