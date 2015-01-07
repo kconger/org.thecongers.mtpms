@@ -50,7 +50,7 @@ public class UserSettingActivity extends PreferenceActivity {
     }
 
     // Dynamically populate the sensor ID list preferences
-    protected static void setListPreferenceData(ListPreference lp) {
+    private static void setListPreferenceData(ListPreference lp) {
         SensorIdDatabase sensorDB;
         sensorDB = MainActivity.sensorDB;
 

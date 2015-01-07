@@ -32,7 +32,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.PictureDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -48,17 +47,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.caverock.androidsvg.SVG;
-import com.caverock.androidsvg.SVGParseException;
-
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.UUID;
@@ -69,7 +63,13 @@ public class MainActivity extends ActionBarActivity {
     private NotificationManager notificationManager;
 
     private View root;
-    TextView txtOutput;
+    private TextView txtOutput;
+    private TextView txtFrontPressure;
+    private TextView txtFrontTemperature;
+    private TextView txtFrontVoltage;
+    private TextView txtRearPressure;
+    private TextView txtRearTemperature;
+    private TextView txtRearVoltage;
 
     private Drawable background;
     private Drawable redBackground;
@@ -80,16 +80,13 @@ public class MainActivity extends ActionBarActivity {
 
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
-    protected Set<BluetoothDevice>pairedDevices;
 
     // SPP UUID service
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private static final String TAG = "iTPMS";
-    final int RECEIVE_MESSAGE = 1;		// Status for Handler
+    private final int RECEIVE_MESSAGE = 1;		// Status for Handler
     private static final int SETTINGS_RESULT = 1;
     private String address;
-    private String svgFUILive;
-    private String svgRUILive;
     private int frontStatus = 0;
     private int rearStatus = 0;
     private boolean itsDark = false;
@@ -97,8 +94,8 @@ public class MainActivity extends ActionBarActivity {
     private long lightTimer = 0;
 
     static SensorIdDatabase sensorDB;
-    LogData logger = null;
-    Handler h;
+    private LogData logger = null;
+    private Handler h;
 
     @SuppressLint("HandlerLeak")
     @Override
@@ -106,9 +103,13 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         setContentView(R.layout.activity_main);
-        final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
-        final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
         txtOutput = (TextView) findViewById(R.id.txtOutput);
+        txtFrontPressure = (TextView) findViewById(R.id.txtFrontPressure);
+        txtFrontTemperature = (TextView) findViewById(R.id.txtFrontTemperature);
+        txtFrontVoltage = (TextView) findViewById(R.id.txtFrontVoltage);
+        txtRearPressure = (TextView) findViewById(R.id.txtRearPressure);
+        txtRearTemperature = (TextView) findViewById(R.id.txtRearTemperature);
+        txtRearVoltage = (TextView) findViewById(R.id.txtRearVoltage);
 
         View myView = findViewById(R.id.linearLayout0);
         root = myView.getRootView();
@@ -152,37 +153,16 @@ public class MainActivity extends ActionBarActivity {
             // F
             temperatureUnit = "F";
         }
-        String svgUI = readRawTextFile(this, R.raw.ui);
-        svgFUILive = svgUI.replaceAll("PP", "---");
-        svgFUILive = svgFUILive.replaceAll("TTT", "---");
-        svgFUILive = svgFUILive.replaceAll("VVV", "---");
-        svgFUILive = svgFUILive.replaceAll("PSI", pressureUnit);
-        svgFUILive = svgFUILive.replaceAll("TU", temperatureUnit);
 
-        imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-
-        svgRUILive = svgUI.replaceAll("PP", "---");
-        svgRUILive = svgRUILive.replaceAll("TTT", "---");
-        svgRUILive = svgRUILive.replaceAll("VVV", "---");
-        svgRUILive = svgRUILive.replaceAll("PSI", pressureUnit);
-        svgRUILive = svgRUILive.replaceAll("TU", temperatureUnit);
-
-        imageView2.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        try
-        {
-            SVG svgF = SVG.getFromString(svgFUILive);
-            SVG svgR = SVG.getFromString(svgRUILive);
-            Drawable drawableF = new PictureDrawable(svgF.renderToPicture());
-            Drawable drawableR = new PictureDrawable(svgR.renderToPicture());
-            imageView.setImageDrawable(drawableF);
-            imageView2.setImageDrawable(drawableR);
-        }
-        catch(SVGParseException e){
-            Log.d(TAG, "SVG Parse Exception");
-        }
-
+        txtFrontPressure.setText("--- " + pressureUnit);
+        txtFrontTemperature.setText("--- " + temperatureUnit);
+        txtFrontVoltage.setText("--- V");
+        txtRearPressure.setText("--- " + pressureUnit);
+        txtRearTemperature.setText("--- " + temperatureUnit);
+        txtRearVoltage.setText("--- V");
         txtOutput.setBackground(txtOutBackground);
         txtOutput.setTextColor(getResources().getColor(android.R.color.black));
+
         // Check if there are sensor to wheel mappings
         if (sharedPrefs.getString("prefFrontID", "").equals("") && sharedPrefs.getString("prefRearID", "").equals("")) {
             txtOutput.setText("Please map discovered sensor IDs to wheels!");
@@ -279,9 +259,9 @@ public class MainActivity extends ActionBarActivity {
                                             if (logger == null) {
                                                 logger = new LogData();
                                             }
-                                            logger.write("rear", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
+                                            logger.write("front", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
                                         }
-                                        final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
+                                        final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
                                         int notificationID = 0;
                                         if (psi <= fLowPressure) {
                                             frontStatus = 1;
@@ -289,9 +269,9 @@ public class MainActivity extends ActionBarActivity {
                                             Notify("iTPMS", "Low front tire pressure!", notificationID);
                                             // Set background to red
                                             if (itsDark){
-                                                imageView.setBackground(redBackgroundDark);
+                                                layoutFront.setBackground(redBackgroundDark);
                                             } else {
-                                                imageView.setBackground(redBackground);
+                                                layoutFront.setBackground(redBackground);
                                             }
                                         } else if (psi >= fHighPressure) {
                                             frontStatus = 2;
@@ -299,9 +279,9 @@ public class MainActivity extends ActionBarActivity {
                                             Notify("iTPMS", "High front tire pressure!", notificationID);
                                             // Set background to red
                                             if (itsDark){
-                                                imageView.setBackground(redBackgroundDark);
+                                                layoutFront.setBackground(redBackgroundDark);
                                             } else {
-                                                imageView.setBackground(redBackground);
+                                                layoutFront.setBackground(redBackground);
                                             }
                                         } else {
                                             frontStatus = 0;
@@ -310,29 +290,15 @@ public class MainActivity extends ActionBarActivity {
                                             }
                                             // Reset background
                                             if (itsDark){
-                                                imageView.setBackground(backgroundDark);
+                                                layoutFront.setBackground(backgroundDark);
                                             } else {
-                                                imageView.setBackground(background);
+                                                layoutFront.setBackground(background);
                                             }
                                         }
-                                        String svgFUI = readRawTextFile(MainActivity.this, R.raw.ui);
-                                        svgFUILive = svgFUI.replaceAll("PP", String.valueOf(formattedPressure));
-                                        svgFUILive = svgFUILive.replaceAll("TTT", String.valueOf(formattedTemperature));
-                                        svgFUILive = svgFUILive.replaceAll("VVV", String.format("%.2f", voltage));
-                                        svgFUILive = svgFUILive.replaceAll("PSI", pressureUnit);
-                                        svgFUILive = svgFUILive.replaceAll("TU", temperatureUnit);
-                                        if (itsDark){
-                                            svgFUILive = svgFUILive.replaceAll("#000000", "#FFFFFF");
-                                        }
-                                        try {
-                                            SVG svg = SVG.getFromString(svgFUILive);
-                                            Drawable drawable = new PictureDrawable(svg.renderToPicture());
-                                            imageView.setImageDrawable(drawable);
-                                        } catch (SVGParseException e) {
-                                            Log.d(TAG, "SVG Parse Exception");
-                                        }
-                                        imageView.invalidate();
 
+                                        txtFrontPressure.setText(String.valueOf(formattedPressure) + " " + pressureUnit);
+                                        txtFrontTemperature.setText(String.valueOf(formattedTemperature) + " " + temperatureUnit);
+                                        txtFrontVoltage.setText(String.format("%.2f", voltage) + " V");
                                     } else if (sensorID.toString().equals(prefRearID)) {
                                         Log.d(TAG, "Rear ID matched");
                                         // Check for data logging enabled
@@ -343,7 +309,7 @@ public class MainActivity extends ActionBarActivity {
                                             }
                                             logger.write("rear", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
                                         }
-                                        final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
+                                        final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
                                         int notificationID = 1;
                                         if (psi <= rLowPressure) {
                                             rearStatus = 1;
@@ -351,9 +317,9 @@ public class MainActivity extends ActionBarActivity {
                                             Notify("iTPMS", "Low rear tire pressure!", notificationID);
                                             // Set background to red
                                             if (itsDark){
-                                                imageView2.setBackground(redBackgroundDark);
+                                                layoutRear.setBackground(redBackgroundDark);
                                             } else {
-                                                imageView2.setBackground(redBackground);
+                                                layoutRear.setBackground(redBackground);
                                             }
                                         } else if (psi >= rHighPressure) {
                                             rearStatus = 2;
@@ -361,11 +327,10 @@ public class MainActivity extends ActionBarActivity {
                                             Notify("iTPMS", "High rear tire pressure!", notificationID);
                                             // Set background to red
                                             if (itsDark){
-                                                imageView2.setBackground(redBackgroundDark);
+                                                layoutRear.setBackground(redBackgroundDark);
                                             } else {
-                                                imageView2.setBackground(redBackground);
+                                                layoutRear.setBackground(redBackground);
                                             }
-
                                         } else {
                                             rearStatus = 0;
                                             if (notificationManager != null) {
@@ -373,28 +338,14 @@ public class MainActivity extends ActionBarActivity {
                                             }
                                             // Reset background
                                             if (itsDark){
-                                                imageView2.setBackground(backgroundDark);
+                                                layoutRear.setBackground(backgroundDark);
                                             } else {
-                                                imageView2.setBackground(background);
+                                                layoutRear.setBackground(background);
                                             }
                                         }
-                                        String svgRUI = readRawTextFile(MainActivity.this, R.raw.ui);
-                                        svgRUILive = svgRUI.replaceAll("PP", String.valueOf(formattedPressure));
-                                        svgRUILive = svgRUILive.replaceAll("TTT", String.valueOf(formattedTemperature));
-                                        svgRUILive = svgRUILive.replaceAll("VVV", String.format("%.2f", voltage));
-                                        svgRUILive = svgRUILive.replaceAll("PSI", pressureUnit);
-                                        svgRUILive = svgRUILive.replaceAll("TU", temperatureUnit);
-                                        if (itsDark){
-                                            svgRUILive = svgRUILive.replaceAll("#000000", "#FFFFFF");
-                                        }
-                                        try {
-                                            SVG svg = SVG.getFromString(svgRUILive);
-                                            Drawable drawable = new PictureDrawable(svg.renderToPicture());
-                                            imageView2.setImageDrawable(drawable);
-                                        } catch (SVGParseException e) {
-                                            Log.d(TAG, "SVG Parse Exception");
-                                        }
-                                        imageView2.invalidate();
+                                        txtRearPressure.setText(String.valueOf(formattedPressure) + " " + pressureUnit);
+                                        txtRearTemperature.setText(String.valueOf(formattedTemperature) + " " + temperatureUnit);
+                                        txtRearVoltage.setText(String.format("%.2f", voltage) + " V");
                                     }
                                     // Update txtOutput box
                                     if ((frontStatus == 0) && (rearStatus == 0)){
@@ -419,9 +370,15 @@ public class MainActivity extends ActionBarActivity {
                                     if (!itsDark) {
                                         txtOutput.setBackground(txtOutBackground);
                                         txtOutput.setTextColor(getResources().getColor(android.R.color.black));
+                                        txtRearPressure.setTextColor(getResources().getColor(android.R.color.black));
+                                        txtRearTemperature.setTextColor(getResources().getColor(android.R.color.black));
+                                        txtRearVoltage.setTextColor(getResources().getColor(android.R.color.black));
                                     } else {
                                         txtOutput.setBackground(txtOutBackgroundDark);
                                         txtOutput.setTextColor(getResources().getColor(android.R.color.white));
+                                        txtRearPressure.setTextColor(getResources().getColor(android.R.color.white));
+                                        txtRearTemperature.setTextColor(getResources().getColor(android.R.color.white));
+                                        txtRearVoltage.setTextColor(getResources().getColor(android.R.color.white));
                                     }
                                 } catch (NumberFormatException e) {
                                     Log.d(TAG, "Malformed message, unexpected value");
@@ -460,59 +417,78 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         // Redraw Screen
-        final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
-        final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
+        final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
+        final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
         // Gauges
-        if (itsDark){
-            svgFUILive = svgFUILive.replaceAll("#000000", "#FFFFFF");
-            svgRUILive = svgRUILive.replaceAll("#000000", "#FFFFFF");
-        }
-        try
-        {
-            SVG svgF = SVG.getFromString(svgFUILive);
-            SVG svgR = SVG.getFromString(svgRUILive);
-            Drawable drawableF = new PictureDrawable(svgF.renderToPicture());
-            Drawable drawableR = new PictureDrawable(svgR.renderToPicture());
-            imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            imageView2.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            imageView.setImageDrawable(drawableF);
-            imageView2.setImageDrawable(drawableR);
-        }
-        catch(SVGParseException e){
-            Log.d(TAG, "SVG Parse Exception");
-        }
         // Text
+        CharSequence currentTxtFrontPressure = txtFrontPressure.getText();
+        txtFrontPressure = (TextView) findViewById(R.id.txtFrontPressure);
+        txtFrontPressure.setText(currentTxtFrontPressure);
+
+        CharSequence currentTxtFrontTemperature = txtFrontTemperature.getText();
+        txtFrontTemperature = (TextView) findViewById(R.id.txtFrontTemperature);
+        txtFrontTemperature.setText(currentTxtFrontTemperature);
+
+        CharSequence currentTxtFrontVoltage = txtFrontVoltage.getText();
+        txtFrontVoltage = (TextView) findViewById(R.id.txtFrontVoltage);
+        txtFrontVoltage.setText(currentTxtFrontVoltage);
+
+        CharSequence currentTxtRearPressure = txtRearPressure.getText();
+        txtRearPressure = (TextView) findViewById(R.id.txtRearPressure);
+        txtRearPressure.setText(currentTxtRearPressure);
+
+        CharSequence currentTxtRearTemperature = txtRearTemperature.getText();
+        txtRearTemperature = (TextView) findViewById(R.id.txtRearTemperature);
+        txtRearTemperature.setText(currentTxtRearTemperature);
+
+        CharSequence currentTxtRearVoltage = txtRearVoltage.getText();
+        txtRearVoltage = (TextView) findViewById(R.id.txtRearVoltage);
+        txtRearVoltage.setText(currentTxtRearVoltage);
+
         CharSequence currentTxt = txtOutput.getText();
-        txtOutput= (TextView) findViewById(R.id.txtOutput);
+        txtOutput = (TextView) findViewById(R.id.txtOutput);
         txtOutput.setText(currentTxt);
-        // Background
+
+        // Colors
         if (!itsDark){
-            txtOutput.setBackground(txtOutBackground);
-            txtOutput.setTextColor(getResources().getColor(android.R.color.black));
             if (frontStatus > 0) {
-                imageView.setBackground(redBackground);
+                layoutFront.setBackground(redBackground);
             } else {
-                imageView.setBackground(background);
+                layoutFront.setBackground(background);
             }
             if (rearStatus > 0) {
-                imageView2.setBackground(redBackground);
+                layoutRear.setBackground(redBackground);
             } else {
-                imageView2.setBackground(background);
+                layoutRear.setBackground(background);
             }
+            txtOutput.setBackground(txtOutBackground);
+            txtFrontPressure.setTextColor(getResources().getColor(android.R.color.black));
+            txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.black));
+            txtFrontVoltage.setTextColor(getResources().getColor(android.R.color.black));
+            txtRearPressure.setTextColor(getResources().getColor(android.R.color.black));
+            txtRearTemperature.setTextColor(getResources().getColor(android.R.color.black));
+            txtRearVoltage.setTextColor(getResources().getColor(android.R.color.black));
+            txtOutput.setTextColor(getResources().getColor(android.R.color.black));
 
         } else {
-            txtOutput.setBackground(txtOutBackgroundDark);
-            txtOutput.setTextColor(getResources().getColor(android.R.color.white));
             if (frontStatus > 0) {
-                imageView.setBackground(redBackgroundDark);
+                layoutFront.setBackground(redBackgroundDark);
             } else {
-                imageView.setBackground(backgroundDark);
+                layoutFront.setBackground(backgroundDark);
             }
             if (rearStatus > 0) {
-                imageView2.setBackground(redBackgroundDark);
+                layoutRear.setBackground(redBackgroundDark);
             } else {
-                imageView2.setBackground(backgroundDark);
+                layoutRear.setBackground(backgroundDark);
             }
+            txtOutput.setBackground(txtOutBackgroundDark);
+            txtFrontPressure.setTextColor(getResources().getColor(android.R.color.white));
+            txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.white));
+            txtFrontVoltage.setTextColor(getResources().getColor(android.R.color.white));
+            txtRearPressure.setTextColor(getResources().getColor(android.R.color.white));
+            txtRearTemperature.setTextColor(getResources().getColor(android.R.color.white));
+            txtRearVoltage.setTextColor(getResources().getColor(android.R.color.white));
+            txtOutput.setTextColor(getResources().getColor(android.R.color.white));
         }
     }
 
@@ -587,7 +563,7 @@ public class MainActivity extends ActionBarActivity {
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         checkBTState();
         if(btAdapter!=null) {
-            pairedDevices = btAdapter.getBondedDevices();
+            Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
             // If there are paired devices
             if (pairedDevices.size() > 0) {
                 // Loop through paired devices
@@ -750,27 +726,6 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    //Read raw text file
-    public static String readRawTextFile(Context ctx, int resId)
-    {
-        InputStream inputStream = ctx.getResources().openRawResource(resId);
-
-        InputStreamReader inputreader = new InputStreamReader(inputStream);
-        BufferedReader buffreader = new BufferedReader(inputreader);
-        String line;
-        StringBuilder text = new StringBuilder();
-
-        try {
-            while (( line = buffreader.readLine()) != null) {
-                text.append(line);
-                text.append('\n');
-            }
-        } catch (IOException e) {
-            return null;
-        }
-        return text.toString();
-    }
-
     //Send Notification
     private void Notify(String notificationTitle, String notificationMessage, int notificationID)
     {
@@ -814,7 +769,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     // Listens for light sensor events
-    SensorEventListener lightSensorEventListener
+    private final SensorEventListener lightSensorEventListener
             = new SensorEventListener(){
 
         @Override
@@ -841,37 +796,29 @@ public class MainActivity extends ActionBarActivity {
                                 itsDark = true;
                                 Log.d(TAG,"Its night");
                                 // Redraw Screen
-                                final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
-                                final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
+                                final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
+                                final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
+
                                 root.setBackgroundColor(getResources().getColor(android.R.color.black));
-                                txtOutput.setBackground(txtOutBackgroundDark);
-                                txtOutput.setTextColor(getResources().getColor(android.R.color.white));
+
                                 if (frontStatus > 0) {
-                                    imageView.setBackground(redBackgroundDark);
+                                    layoutFront.setBackground(redBackgroundDark);
                                 } else {
-                                    imageView.setBackground(backgroundDark);
+                                    layoutFront.setBackground(backgroundDark);
                                 }
                                 if (rearStatus > 0) {
-                                    imageView2.setBackground(redBackgroundDark);
+                                    layoutRear.setBackground(redBackgroundDark);
                                 } else {
-                                    imageView2.setBackground(backgroundDark);
+                                    layoutRear.setBackground(backgroundDark);
                                 }
-                                svgFUILive = svgFUILive.replaceAll("#000000","#FFFFFF");
-                                svgRUILive = svgRUILive.replaceAll("#000000","#FFFFFF");
-                                try
-                                {
-                                    SVG svgF = SVG.getFromString(svgFUILive);
-                                    SVG svgR = SVG.getFromString(svgRUILive);
-                                    Drawable drawableF = new PictureDrawable(svgF.renderToPicture());
-                                    Drawable drawableR = new PictureDrawable(svgR.renderToPicture());
-                                    imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-                                    imageView2.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-                                    imageView.setImageDrawable(drawableF);
-                                    imageView2.setImageDrawable(drawableR);
-                                }
-                                catch(SVGParseException e){
-                                    Log.d(TAG, "SVG Parse Exception");
-                                }
+                                txtFrontPressure.setTextColor(getResources().getColor(android.R.color.white));
+                                txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.white));
+                                txtFrontVoltage.setTextColor(getResources().getColor(android.R.color.white));
+                                txtRearPressure.setTextColor(getResources().getColor(android.R.color.white));
+                                txtRearTemperature.setTextColor(getResources().getColor(android.R.color.white));
+                                txtRearVoltage.setTextColor(getResources().getColor(android.R.color.white));
+                                txtOutput.setBackground(txtOutBackgroundDark);
+                                txtOutput.setTextColor(getResources().getColor(android.R.color.white));
                             }
                         }
                     } else {
@@ -885,38 +832,28 @@ public class MainActivity extends ActionBarActivity {
                                 itsDark = false;
                                 Log.d(TAG,"Its day");
                                 // Redraw Screen
-                                final ImageView  imageView = (ImageView) findViewById(R.id.imageView1);
-                                final ImageView  imageView2 = (ImageView) findViewById(R.id.imageView2);
+                                final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
+                                final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
+
                                 root.setBackgroundColor(getResources().getColor(android.R.color.white));
-                                txtOutput.setBackground(txtOutBackground);
-                                txtOutput.setTextColor(getResources().getColor(android.R.color.black));
                                 if (frontStatus > 0) {
-                                    imageView.setBackground(redBackground);
+                                    layoutFront.setBackground(redBackground);
                                 } else {
-                                    imageView.setBackground(background);
+                                    layoutFront.setBackground(background);
                                 }
                                 if (rearStatus > 0) {
-                                    imageView2.setBackground(redBackground);
+                                    layoutRear.setBackground(redBackground);
                                 } else {
-                                    imageView2.setBackground(background);
+                                    layoutRear.setBackground(background);
                                 }
-                                svgFUILive = svgFUILive.replaceAll("#FFFFFF","#000000");
-                                svgRUILive = svgRUILive.replaceAll("#FFFFFF","#000000");
-                                try
-                                {
-                                    SVG svgF = SVG.getFromString(svgFUILive);
-                                    SVG svgR = SVG.getFromString(svgRUILive);
-                                    Drawable drawableF = new PictureDrawable(svgF.renderToPicture());
-                                    Drawable drawableR = new PictureDrawable(svgR.renderToPicture());
-                                    imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-                                    imageView2.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-                                    imageView.setImageDrawable(drawableF);
-                                    imageView2.setImageDrawable(drawableR);
-                                }
-                                catch(SVGParseException e){
-                                    Log.d(TAG, "SVG Parse Exception");
-                                }
-
+                                txtFrontPressure.setTextColor(getResources().getColor(android.R.color.black));
+                                txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.black));
+                                txtFrontVoltage.setTextColor(getResources().getColor(android.R.color.black));
+                                txtRearPressure.setTextColor(getResources().getColor(android.R.color.black));
+                                txtRearTemperature.setTextColor(getResources().getColor(android.R.color.black));
+                                txtRearVoltage.setTextColor(getResources().getColor(android.R.color.black));
+                                txtOutput.setBackground(txtOutBackground);
+                                txtOutput.setTextColor(getResources().getColor(android.R.color.black));
                             }
                         }
                     }

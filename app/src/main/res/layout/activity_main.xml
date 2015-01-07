@@ -9,29 +9,112 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
         tools:context=".MainActivity" >
-    	<ImageView
-            android:id="@+id/imageView1"
-            android:contentDescription="@string/front_wheel_desc"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerInside"
-            android:elevation="5dp"
-            android:background="@drawable/rectangle_bordered"
-            android:src="@drawable/app_icon"
-            android:layout_margin="10dp" />
 
-        <ImageView
-            android:id="@+id/imageView2"
-            android:contentDescription="@string/back_wheel_desc"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerInside"
-            android:elevation="5dp"
-            android:background="@drawable/rectangle_bordered"
-            android:src="@drawable/app_icon"
-            android:layout_margin="10dp" />
+    <LinearLayout
+        android:id="@+id/layoutFront"
+        android:orientation="horizontal"
+        android:background="@drawable/rectangle_bordered"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:elevation="5dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="000 Kg-f"
+            android:id="@+id/txtFrontPressure"
+            android:textSize="50sp"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="50dp"
+            android:layout_marginLeft="15dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="000 F"
+                android:id="@+id/txtFrontTemperature"
+                android:textAlignment="gravity"
+                android:gravity="center_vertical|center_horizontal"
+                android:textSize="30sp" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="0.00 V"
+                android:id="@+id/txtFrontVoltage"
+                android:gravity="center_vertical|center_horizontal"
+                android:textSize="30sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutRear"
+        android:orientation="horizontal"
+        android:background="@drawable/rectangle_bordered"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:elevation="5dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="000 Kg-f"
+            android:id="@+id/txtRearPressure"
+            android:textSize="50sp"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="50dp"
+            android:layout_marginLeft="15dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="000 F"
+                android:id="@+id/txtRearTemperature"
+                android:textAlignment="gravity"
+                android:gravity="center_vertical|center_horizontal"
+                android:textSize="30sp" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="0.00 V"
+                android:id="@+id/txtRearVoltage"
+                android:gravity="center_vertical|center_horizontal"
+                android:textSize="30sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
             android:id="@+id/txtOutput"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -39,6 +122,8 @@
             android:gravity="center"
             android:elevation="5dp"
             android:background="@drawable/rectangle"
-            android:layout_margin="10dp"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp" />
 </LinearLayout>

@@ -14,34 +14,109 @@
             android:id="@+id/linearLayout1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-            <ImageView
-                android:id="@+id/imageView1"
-                android:contentDescription="@string/front_wheel_desc"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:scaleType="centerInside"
-                android:elevation="5dp"
-                android:background="@drawable/rectangle_bordered"
-                android:src="@drawable/app_icon"
-                android:layout_margin="10dp"
-                android:layout_weight="1" />
+            android:orientation="horizontal"
+        android:baselineAligned="false">
 
-            <ImageView
-                android:id="@+id/imageView2"
-                android:contentDescription="@string/back_wheel_desc"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:scaleType="centerInside"
-                android:elevation="5dp"
-                android:background="@drawable/rectangle_bordered"
-                android:src="@drawable/app_icon"
-                android:layout_margin="10dp"
-                android:layout_weight="1" />
+        <LinearLayout
+            android:id="@+id/layoutFront"
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:elevation="5dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/rectangle_bordered"
+            android:layout_marginLeft="5dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="000 Kg-f"
+                android:id="@+id/txtFrontPressure"
+                android:textSize="50sp"
+                android:gravity="center_vertical|center_horizontal"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="50dp"
+                android:layout_marginLeft="15dp" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="000 F"
+                    android:id="@+id/txtFrontTemperature"
+                    android:gravity="center_vertical|center_horizontal" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="0.00 V"
+                    android:id="@+id/txtFrontVoltage"
+                    android:gravity="center_vertical|center_horizontal" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/layoutRear"
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:elevation="5dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/rectangle_bordered"
+            android:layout_marginRight="5dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="000 Kg-f"
+                android:id="@+id/txtRearPressure"
+                android:textSize="50sp"
+                android:gravity="center_vertical|center_horizontal"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="50dp"
+                android:layout_marginLeft="15dp" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="000 F"
+                    android:id="@+id/txtRearTemperature"
+                    android:gravity="center_vertical|center_horizontal" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="0.00 V"
+                    android:id="@+id/txtRearVoltage"
+                    android:gravity="center_vertical|center_horizontal" />
+            </LinearLayout>
         </LinearLayout>
 
-        <TextView
+    </LinearLayout>
+
+    <TextView
             android:id="@+id/txtOutput"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -49,7 +124,9 @@
             android:gravity="center"
             android:elevation="5dp"
             android:background="@drawable/rectangle"
-            android:layout_margin="10dp"
             android:textAlignment="center"
-            android:text="" />
+            android:text=""
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="10dp" />
 </LinearLayout>

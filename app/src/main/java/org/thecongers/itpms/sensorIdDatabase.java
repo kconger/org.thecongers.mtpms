@@ -27,8 +27,8 @@ import android.util.Log;
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 
-public class SensorIdDatabase extends SQLiteAssetHelper {
-    public static final String TAG = "iTPMS_DB";
+class SensorIdDatabase extends SQLiteAssetHelper {
+    private static final String TAG = "iTPMS_DB";
     private static final String DATABASE_NAME = "discoveredSensorID.db";
     private static final int DATABASE_VERSION = 1;
 

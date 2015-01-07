@@ -31,16 +31,18 @@ import java.util.Date;
 import java.util.TimeZone;
 
 
-public class LogData {
-    static PrintWriter outFile = null;
-    public static final String TAG = "iTPMS_Log";
+class LogData {
+    private static PrintWriter outFile = null;
+    private static final String TAG = "iTPMS_Log";
 
     private static void initialize()
     {
         try {
             File root = new File(Environment.getExternalStorageDirectory() + "/itpms/");
             if(!root.exists()) {
-                root.mkdirs();
+                if(!root.mkdirs()){
+                    Log.d(TAG,"Unable to create directory: " + root);
+                }
             }
             if(root.canWrite())
             {
