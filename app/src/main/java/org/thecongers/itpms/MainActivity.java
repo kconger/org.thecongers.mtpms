@@ -101,18 +101,19 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         setContentView(R.layout.activity_main);
-        txtOutput = (TextView) findViewById(R.id.txtOutput);
         txtFrontPressure = (TextView) findViewById(R.id.txtFrontPressure);
         txtFrontTemperature = (TextView) findViewById(R.id.txtFrontTemperature);
         txtFrontVoltage = (TextView) findViewById(R.id.txtFrontVoltage);
         txtRearPressure = (TextView) findViewById(R.id.txtRearPressure);
         txtRearTemperature = (TextView) findViewById(R.id.txtRearTemperature);
         txtRearVoltage = (TextView) findViewById(R.id.txtRearVoltage);
-
-        View myView = findViewById(R.id.linearLayout0);
+        txtOutput = (TextView) findViewById(R.id.txtOutput);
+        View myView = findViewById(R.id.appLayout);
         root = myView.getRootView();
+
+        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Keep screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -201,7 +202,6 @@ public class MainActivity extends ActionBarActivity {
                                 Toast.makeText(MainActivity.this,
                                         "New sensor discovered: " + sensorID.toString(),
                                         Toast.LENGTH_LONG).show();
-
                             }
                             // Only parse message if there is one or more sensor mappings
                             String prefFrontID = sharedPrefs.getString("prefFrontID", "");
@@ -811,13 +811,13 @@ public class MainActivity extends ActionBarActivity {
                                 } else {
                                     layoutRear.setBackground(backgroundDark);
                                 }
+                                txtOutput.setBackground(txtOutBackgroundDark);
                                 txtFrontPressure.setTextColor(getResources().getColor(android.R.color.white));
                                 txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.white));
                                 txtFrontVoltage.setTextColor(getResources().getColor(android.R.color.white));
                                 txtRearPressure.setTextColor(getResources().getColor(android.R.color.white));
                                 txtRearTemperature.setTextColor(getResources().getColor(android.R.color.white));
                                 txtRearVoltage.setTextColor(getResources().getColor(android.R.color.white));
-                                txtOutput.setBackground(txtOutBackgroundDark);
                                 txtOutput.setTextColor(getResources().getColor(android.R.color.white));
                             }
                         }
@@ -846,13 +846,13 @@ public class MainActivity extends ActionBarActivity {
                                 } else {
                                     layoutRear.setBackground(background);
                                 }
+                                txtOutput.setBackground(txtOutBackground);
                                 txtFrontPressure.setTextColor(getResources().getColor(android.R.color.black));
                                 txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.black));
                                 txtFrontVoltage.setTextColor(getResources().getColor(android.R.color.black));
                                 txtRearPressure.setTextColor(getResources().getColor(android.R.color.black));
                                 txtRearTemperature.setTextColor(getResources().getColor(android.R.color.black));
                                 txtRearVoltage.setTextColor(getResources().getColor(android.R.color.black));
-                                txtOutput.setBackground(txtOutBackground);
                                 txtOutput.setTextColor(getResources().getColor(android.R.color.black));
                             }
                         }
