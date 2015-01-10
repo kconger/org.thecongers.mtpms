@@ -57,7 +57,7 @@ class LogData {
                 File logFile = new File( root, "iTPMS-" + curdatetime + ".csv" );
                 FileWriter logWriter = new FileWriter( logFile );
                 outFile = new PrintWriter( logWriter );
-                outFile.write( "Date,Wheel,Pressure(psi),Temperature(Celsius),Voltage\n" );
+                outFile.write( "Date(UTC),Wheel,Pressure(psi),Temperature(Celsius),Voltage\n" );
             }
         } catch (IOException e) {
             Log.d(TAG, "Could not write to file: " + e.getMessage());

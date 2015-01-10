@@ -41,6 +41,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -79,8 +80,6 @@ public class MainActivity extends ActionBarActivity {
     private Drawable txtOutBackgroundDark;
 
     private BluetoothAdapter btAdapter = null;
-    private BluetoothSocket btSocket = null;
-
     // SPP UUID service
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private static final String TAG = "iTPMS";
@@ -96,6 +95,7 @@ public class MainActivity extends ActionBarActivity {
     static SensorIdDatabase sensorDB;
     private LogData logger = null;
     private Handler h;
+    ConnectThread mConnectThread;
 
     @SuppressLint("HandlerLeak")
     @Override
@@ -259,7 +259,7 @@ public class MainActivity extends ActionBarActivity {
                                             if (logger == null) {
                                                 logger = new LogData();
                                             }
-                                            logger.write("front", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
+                                            logger.write("front", String.valueOf(psi), String.valueOf(tempC), String.valueOf(voltage));
                                         }
                                         final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
                                         int notificationID = 0;
@@ -307,7 +307,7 @@ public class MainActivity extends ActionBarActivity {
                                             if (logger == null) {
                                                 logger = new LogData();
                                             }
-                                            logger.write("rear", String.valueOf(psi), String.valueOf(temp), String.valueOf(voltage));
+                                            logger.write("rear", String.valueOf(psi), String.valueOf(tempC), String.valueOf(voltage));
                                         }
                                         final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
                                         int notificationID = 1;
@@ -583,43 +583,8 @@ public class MainActivity extends ActionBarActivity {
             if (address != null){
                 // Set up a pointer to the remote node using it's address.
                 BluetoothDevice device = btAdapter.getRemoteDevice(address);
-
-                // Two things are needed to make a connection:
-                //   A MAC address, which we got above.
-                //   A Service ID or UUID.  In this case we are using the
-                //     UUID for SPP.
-
-                try {
-                    btSocket = createBluetoothSocket(device);
-                } catch (IOException e) {
-                    Log.d(TAG,"Bluetooth socket create failed: " + e.getMessage() + ".");
-                    return false;
-                }
-
-                // Discovery is resource intensive.  Make sure it isn't going on
-                // when you attempt to connect and pass your message.
-                btAdapter.cancelDiscovery();
-
-                // Establish the connection.  This will block until it connects.
-                Log.d(TAG, "Connecting to the iTPMSystem...");
-                try {
-                    btSocket.connect();
-                    Log.d(TAG, "Connected to: " + device.getName() + " " + device.getAddress());
-                    Toast.makeText(MainActivity.this,
-                            "Connected to: " + device.getName() + " " + device.getAddress(),
-                            Toast.LENGTH_LONG).show();
-                } catch (IOException e) {
-                    try {
-                        btSocket.close();
-                        return false;
-                    } catch (IOException e2) {
-                        Log.d(TAG,"Unable to close socket during connection failure");
-                        return false;
-                    }
-                }
-
-                ConnectedThread mConnectedThread = new ConnectedThread(btSocket);
-                mConnectedThread.start();
+                mConnectThread = new ConnectThread(device);
+                mConnectThread.start();
             } else {
                 Toast.makeText(MainActivity.this,
                         "No previously paired iTPMSystem found.",
@@ -630,18 +595,6 @@ public class MainActivity extends ActionBarActivity {
         }
         Log.d(TAG, "Bluetooth not supported");
         return false;
-    }
-
-    // Close Bluetooth Socket
-    private void btReset() {
-        if (btSocket != null) {
-            try {
-                btSocket.close();
-            } catch (Exception e) {
-                Log.d(TAG,"Unable to close socket during connection failure");
-            }
-            btSocket = null;
-        }
     }
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
@@ -691,6 +644,73 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    // Bluetooth Connect Thread
+    private class ConnectThread extends Thread {
+        private final BluetoothSocket mmSocket;
+        private final BluetoothDevice mmDevice;
+
+        public ConnectThread(BluetoothDevice device) {
+            // Use a temporary object that is later assigned to mmSocket,
+            // because mmSocket is final
+            BluetoothSocket tmp = null;
+            mmDevice = device;
+
+            // Get a BluetoothSocket to connect with the given BluetoothDevice
+            try {
+                // MY_UUID is the app's UUID string, also used by the server code
+                tmp = createBluetoothSocket(device);
+            } catch (IOException e) {
+                Log.d(TAG,"Bluetooth socket create failed: " + e.getMessage() + ".");
+            }
+            mmSocket = tmp;
+        }
+
+        public void run() {
+            // Cancel discovery because it will slow down the connection
+            btAdapter.cancelDiscovery();
+            Log.d(TAG, "Connecting to the iTPMSystem...");
+            try {
+                // Connect the device through the socket. This will block
+                // until it succeeds or throws an exception
+                mmSocket.connect();
+                Log.d(TAG, "Connected to: " + mmDevice.getName() + " " + mmDevice.getAddress());
+                MainActivity.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this,
+                                "Connected to: " + mmDevice.getName() + " " + mmDevice.getAddress(),
+                                Toast.LENGTH_LONG).show();
+
+                    }
+                });
+            } catch (IOException connectException) {
+                // Unable to connect; close the socket and get out
+                Log.d(TAG, "Unable to connect to the iTPMSystem...");
+                try {
+                    mmSocket.close();
+                } catch (IOException closeException) {
+                    Log.d(TAG,"Unable to close socket during connection failure");
+                }
+                return;
+            }
+
+            // Do work to manage the connection (in a separate thread)
+            ConnectedThread mConnectedThread = new ConnectedThread(mmSocket);
+            mConnectedThread.start();
+        }
+
+        // Cancel an in-progress connection, and close the socket
+        public void cancel() {
+            try {
+                mmSocket.close();
+            } catch (IOException e) {
+                Log.d(TAG, "Unable to close Bluetooth socket");
+            }
+        }
+    }
+
+    // Connected bluetooth thread
     private class ConnectedThread extends Thread {
         private final InputStream mmInStream;
 
@@ -719,7 +739,7 @@ public class MainActivity extends ActionBarActivity {
                     h.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
                 } catch (IOException e) {
                     Log.d(TAG, "IO Exception while reading stream");
-                    btReset();
+                    mConnectThread.cancel();
                     break;
                 }
             }
@@ -741,10 +761,13 @@ public class MainActivity extends ActionBarActivity {
         String alertURI = sharedPrefs.getString("prefsound","content://settings/system/notification_sound");
         Uri soundURI = Uri.parse(alertURI);
         // Build notification
-        Notification.Builder builder = new Notification.Builder(this);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setContentTitle(notificationTitle)
                 .setContentText(notificationMessage)
                 .setSmallIcon(R.drawable.notification_icon)
+                .setAutoCancel(false)
+                .setOnlyAlertOnce(true)
+                .setPriority(Notification.PRIORITY_MAX)
                 .setContentIntent(pendingIntent);
         // Check for LED enabled
         if (sharedPrefs.getBoolean("prefNotificationLED", true)) {
@@ -761,9 +784,7 @@ public class MainActivity extends ActionBarActivity {
         }
         // Make alert repeat until read
         notification.flags |= Notification.FLAG_INSISTENT;
-        // Hide notification after its been selected
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        notification.priority = Notification.PRIORITY_MAX;
+
         // Send notification
         notificationManager.notify(notificationID, notification);
     }
