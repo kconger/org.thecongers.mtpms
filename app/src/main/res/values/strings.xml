@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">iTPMS</string>
-    <string name="app_icon_desc">iTPMS Logo</string>
+    <string name="app_icon_desc">iTPMS icon</string>
 
     <string name="front_wheel_desc">Front Wheel</string>
     <string name="back_wheel_desc">Back Wheel</string>
@@ -61,4 +60,21 @@
     <string name="advanced_settings_title">Advanced Settings</string>
     <string name="pref_dataLogging_name">Data Logging</string>
     <string name="pref_dataLogging_summary">Enable Data Logging To /sdcard/itpms/</string>
+
+    <string name="alert_setup_title">Setup Instructions</string>
+    <string name="alert_setup_message">You will need to first pair your device to the iTPMSystem.\n\nOnce connected the sensors should be discovered in about a minute.\n\nAfter which you will need to map the sensors to wheel locations.</string>
+    <string name="alert_setup_button">OK</string>
+
+    <string name="toast_newSensor">New sensor discovered:</string>
+    <string name="toast_noPaired">No previously paired iTPMSystem found</string>
+    <string name="toast_connectedTo">Connected to:</string>
+
+    <string name="alert_lowFrontPressure">Low front tire pressure!</string>
+    <string name="alert_highFrontPressure">High front tire pressure!</string>
+    <string name="alert_lowRearPressure">Low rear tire pressure!</string>
+    <string name="alert_highRearPressure">High rear tire pressure!</string>
+    <string name="alert_lowFrontLowRearPressure">Low front and rear tire pressure!</string>
+    <string name="alert_highFrontHighRearPressure">High front and rear tire pressure!</string>
+    <string name="alert_lowFrontHighRearPressure">Low front and High rear tire pressure!</string>
+    <string name="alert_highFrontLowRearPressure">High front and Low rear tire pressure!</string>
 </resources>

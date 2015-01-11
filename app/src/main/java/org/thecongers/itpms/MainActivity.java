@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.thecongers.itpms;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -166,7 +167,7 @@ public class MainActivity extends ActionBarActivity {
 
         // Check if there are sensor to wheel mappings
         if (sharedPrefs.getString("prefFrontID", "").equals("") && sharedPrefs.getString("prefRearID", "").equals("")) {
-            txtOutput.setText("Please map discovered sensor IDs to wheels!");
+            new AlertDialog.Builder(this).setTitle(R.string.alert_setup_title).setMessage(R.string.alert_setup_message).setNeutralButton(R.string.alert_setup_button, null).show();
         }
 
         h = new Handler() {
@@ -200,16 +201,13 @@ public class MainActivity extends ActionBarActivity {
                                 // Add sensor ID to db
                                 sensorDB.addID(sensorID.toString());
                                 Toast.makeText(MainActivity.this,
-                                        "New sensor discovered: " + sensorID.toString(),
+                                        R.string.toast_newSensor + " " + sensorID.toString(),
                                         Toast.LENGTH_LONG).show();
                             }
                             // Only parse message if there is one or more sensor mappings
                             String prefFrontID = sharedPrefs.getString("prefFrontID", "");
                             String prefRearID = sharedPrefs.getString("prefRearID", "");
                             if (!prefFrontID.equals("") || !prefRearID.equals("")) {
-                                if (txtOutput.getText().toString().contains("Please map")){
-                                    txtOutput.setText("");
-                                }
                                 try {
                                     // Get temperature
                                     int tempC = Integer.parseInt(hexData[8], 16) - 50;
@@ -266,7 +264,7 @@ public class MainActivity extends ActionBarActivity {
                                         if (psi <= fLowPressure) {
                                             frontStatus = 1;
                                             // Send notification
-                                            Notify("iTPMS", "Low front tire pressure!", notificationID);
+                                            Notify(TAG, getResources().getString(R.string.alert_lowFrontPressure), notificationID);
                                             // Set background to red
                                             if (itsDark){
                                                 layoutFront.setBackground(redBackgroundDark);
@@ -276,7 +274,7 @@ public class MainActivity extends ActionBarActivity {
                                         } else if (psi >= fHighPressure) {
                                             frontStatus = 2;
                                             // Send notification
-                                            Notify("iTPMS", "High front tire pressure!", notificationID);
+                                            Notify(TAG, getResources().getString(R.string.alert_highFrontPressure), notificationID);
                                             // Set background to red
                                             if (itsDark){
                                                 layoutFront.setBackground(redBackgroundDark);
@@ -314,7 +312,7 @@ public class MainActivity extends ActionBarActivity {
                                         if (psi <= rLowPressure) {
                                             rearStatus = 1;
                                             // Send notification
-                                            Notify("iTPMS", "Low rear tire pressure!", notificationID);
+                                            Notify(TAG, getResources().getString(R.string.alert_lowRearPressure), notificationID);
                                             // Set background to red
                                             if (itsDark){
                                                 layoutRear.setBackground(redBackgroundDark);
@@ -324,7 +322,7 @@ public class MainActivity extends ActionBarActivity {
                                         } else if (psi >= rHighPressure) {
                                             rearStatus = 2;
                                             // Send notification
-                                            Notify("iTPMS", "High rear tire pressure!", notificationID);
+                                            Notify(TAG, getResources().getString(R.string.alert_highRearPressure), notificationID);
                                             // Set background to red
                                             if (itsDark){
                                                 layoutRear.setBackground(redBackgroundDark);
@@ -351,21 +349,21 @@ public class MainActivity extends ActionBarActivity {
                                     if ((frontStatus == 0) && (rearStatus == 0)){
                                         txtOutput.setText("");
                                     } else if ((frontStatus == 1) && (rearStatus == 0)){
-                                        txtOutput.setText("Low front tire pressure!");
+                                        txtOutput.setText(getResources().getString(R.string.alert_lowFrontPressure));
                                     } else if ((frontStatus == 2) && (rearStatus == 0)){
-                                        txtOutput.setText("High front tire pressure!");
+                                        txtOutput.setText(getResources().getString(R.string.alert_highFrontPressure));
                                     } else if ((rearStatus == 1) && (frontStatus == 0)){
-                                        txtOutput.setText("Low rear tire pressure!");
+                                        txtOutput.setText(getResources().getString(R.string.alert_lowRearPressure));
                                     } else if ((rearStatus == 2) && (frontStatus == 0)){
-                                        txtOutput.setText("High rear tire pressure!");
+                                        txtOutput.setText(getResources().getString(R.string.alert_highRearPressure));
                                     } else if ((frontStatus == 1) && (rearStatus == 1)){
-                                        txtOutput.setText("Low front and rear tire pressure!");
+                                        txtOutput.setText(getResources().getString(R.string.alert_lowFrontLowRearPressure));
                                     } else if ((frontStatus == 2) && (rearStatus == 2)){
-                                        txtOutput.setText("High front and rear tire pressure!");
+                                        txtOutput.setText(getResources().getString(R.string.alert_highFrontHighRearPressure));
                                     } else if ((frontStatus == 1) && (rearStatus == 2)){
-                                        txtOutput.setText("Low front and High rear tire pressure!");
+                                        txtOutput.setText(getResources().getString(R.string.alert_lowFrontHighRearPressure));
                                     } else if ((frontStatus == 2) && (rearStatus == 1)){
-                                        txtOutput.setText("High front and Low rear tire pressure!");
+                                        txtOutput.setText(getResources().getString(R.string.alert_highFrontLowRearPressure));
                                     }
                                     if (!itsDark) {
                                         txtOutput.setBackground(txtOutBackground);
@@ -548,14 +546,6 @@ public class MainActivity extends ActionBarActivity {
         if (!sharedPrefs.getBoolean("prefDataLogging", false) && (logger != null)) {
             logger.shutdown();
         }
-
-        String prefFrontID = sharedPrefs.getString("prefFrontID", "");
-        String prefRearID = sharedPrefs.getString("prefRearID", "");
-        if (!prefFrontID.equals("") || !prefRearID.equals("")) {
-            if (txtOutput.getText().toString().contains("Please map")) {
-                txtOutput.setText("");
-            }
-        }
     }
 
     // Connect to iTPMSystem
@@ -575,7 +565,7 @@ public class MainActivity extends ActionBarActivity {
                 }
                 if (address == null) {
                     Toast.makeText(MainActivity.this,
-                            "No previously paired iTPMSystem found.",
+                            getResources().getString(R.string.toast_noPaired),
                             Toast.LENGTH_LONG).show();
                     return false;
                 }
@@ -587,7 +577,7 @@ public class MainActivity extends ActionBarActivity {
                 mConnectThread.start();
             } else {
                 Toast.makeText(MainActivity.this,
-                        "No previously paired iTPMSystem found.",
+                        getResources().getString(R.string.toast_noPaired),
                         Toast.LENGTH_LONG).show();
                 return false;
             }
@@ -679,7 +669,8 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     public void run() {
                         Toast.makeText(MainActivity.this,
-                                "Connected to: " + mmDevice.getName() + " " + mmDevice.getAddress(),
+                                getResources().getString(R.string.toast_connectedTo) +
+                                        " " + mmDevice.getName() + " " + mmDevice.getAddress(),
                                 Toast.LENGTH_LONG).show();
 
                     }
@@ -840,6 +831,11 @@ public class MainActivity extends ActionBarActivity {
                                 txtRearTemperature.setTextColor(getResources().getColor(android.R.color.white));
                                 txtRearVoltage.setTextColor(getResources().getColor(android.R.color.white));
                                 txtOutput.setTextColor(getResources().getColor(android.R.color.white));
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
+                                }
+
                             }
                         }
                     } else {
@@ -875,6 +871,10 @@ public class MainActivity extends ActionBarActivity {
                                 txtRearTemperature.setTextColor(getResources().getColor(android.R.color.black));
                                 txtRearVoltage.setTextColor(getResources().getColor(android.R.color.black));
                                 txtOutput.setTextColor(getResources().getColor(android.R.color.black));
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+                                }
                             }
                         }
                     }
