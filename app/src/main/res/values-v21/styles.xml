@@ -1,27 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+<resources>
     <!--
             Base application theme for API 21+. This theme completely replaces
             AppBaseTheme from BOTH res/values/styles.xml and
             res/values-v21/styles.xml on API 21+ devices.
         -->
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- API 21 theme customizations can go here. -->
         <!-- Main theme colors -->
         <!--   your app branding color for the app bar -->
-        <item name="android:colorPrimary">@color/primary</item>
-        <!--   darker variant for the status bar and contextual app bars -->
-        <item name="android:colorPrimaryDark">@color/primary_dark</item>
-        <!--   theme UI controls like checkboxes and text fields -->
-        <item name="android:colorAccent">@color/accent</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:actionBarStyle"   tools:ignore="NewApi">@style/MyActionBar</item>
-        <item name="actionBarStyle">@style/MyActionBar</item>
-        <item name="@android:panelFullBackground">@color/primary</item>
-        <item name="@android:panelColorBackground">@color/primary</item>
-    </style>
-    <style name="MyActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="android:background"  tools:ignore="NewApi">@color/primary</item>
-        <item name="background">@color/primary</item>
     </style>
 </resources>

@@ -95,8 +95,8 @@ public class MainActivity extends ActionBarActivity {
 
     static SensorIdDatabase sensorDB;
     private LogData logger = null;
-    private Handler h;
-    ConnectThread mConnectThread;
+    private Handler sensorMessages;
+    private ConnectThread btConnectThread;
 
     @SuppressLint("HandlerLeak")
     @Override
@@ -137,7 +137,7 @@ public class MainActivity extends ActionBarActivity {
         txtOutBackground = this.getResources().getDrawable(R.drawable.rectangle);
         txtOutBackgroundDark = this.getResources().getDrawable(R.drawable.rectangle_dark);
 
-        // Draw gauges
+        // Update textViews with select units
         String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
         String pressureUnit = "psi";
         if (pressureFormat.contains("1")) {
@@ -170,7 +170,7 @@ public class MainActivity extends ActionBarActivity {
             new AlertDialog.Builder(this).setTitle(R.string.alert_setup_title).setMessage(R.string.alert_setup_message).setNeutralButton(R.string.alert_setup_button, null).show();
         }
 
-        h = new Handler() {
+        sensorMessages = new Handler() {
             public void handleMessage(android.os.Message msg) {
                 switch (msg.what) {
                     case RECEIVE_MESSAGE:
@@ -201,7 +201,7 @@ public class MainActivity extends ActionBarActivity {
                                 // Add sensor ID to db
                                 sensorDB.addID(sensorID.toString());
                                 Toast.makeText(MainActivity.this,
-                                        R.string.toast_newSensor + " " + sensorID.toString(),
+                                        getResources().getString(R.string.toast_newSensor) + " " + sensorID.toString(),
                                         Toast.LENGTH_LONG).show();
                             }
                             // Only parse message if there is one or more sensor mappings
@@ -417,8 +417,7 @@ public class MainActivity extends ActionBarActivity {
         // Redraw Screen
         final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
         final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
-        // Gauges
-        // Text
+        // Restore Text
         CharSequence currentTxtFrontPressure = txtFrontPressure.getText();
         txtFrontPressure = (TextView) findViewById(R.id.txtFrontPressure);
         txtFrontPressure.setText(currentTxtFrontPressure);
@@ -447,7 +446,7 @@ public class MainActivity extends ActionBarActivity {
         txtOutput = (TextView) findViewById(R.id.txtOutput);
         txtOutput.setText(currentTxt);
 
-        // Colors
+        // Restore Colors
         if (!itsDark){
             if (frontStatus > 0) {
                 layoutFront.setBackground(redBackground);
@@ -573,8 +572,8 @@ public class MainActivity extends ActionBarActivity {
             if (address != null){
                 // Set up a pointer to the remote node using it's address.
                 BluetoothDevice device = btAdapter.getRemoteDevice(address);
-                mConnectThread = new ConnectThread(device);
-                mConnectThread.start();
+                btConnectThread = new ConnectThread(device);
+                btConnectThread.start();
             } else {
                 Toast.makeText(MainActivity.this,
                         getResources().getString(R.string.toast_noPaired),
@@ -636,23 +635,22 @@ public class MainActivity extends ActionBarActivity {
 
     // Bluetooth Connect Thread
     private class ConnectThread extends Thread {
-        private final BluetoothSocket mmSocket;
-        private final BluetoothDevice mmDevice;
+        private final BluetoothSocket btSocket;
+        private final BluetoothDevice btDevice;
 
         public ConnectThread(BluetoothDevice device) {
             // Use a temporary object that is later assigned to mmSocket,
-            // because mmSocket is final
+            // because btSocket is final
             BluetoothSocket tmp = null;
-            mmDevice = device;
+            btDevice = device;
 
             // Get a BluetoothSocket to connect with the given BluetoothDevice
             try {
-                // MY_UUID is the app's UUID string, also used by the server code
                 tmp = createBluetoothSocket(device);
             } catch (IOException e) {
                 Log.d(TAG,"Bluetooth socket create failed: " + e.getMessage() + ".");
             }
-            mmSocket = tmp;
+            btSocket = tmp;
         }
 
         public void run() {
@@ -660,26 +658,26 @@ public class MainActivity extends ActionBarActivity {
             btAdapter.cancelDiscovery();
             Log.d(TAG, "Connecting to the iTPMSystem...");
             try {
-                // Connect the device through the socket. This will block
-                // until it succeeds or throws an exception
-                mmSocket.connect();
-                Log.d(TAG, "Connected to: " + mmDevice.getName() + " " + mmDevice.getAddress());
+                // Connect the device through the socket. This will block until it succeeds or
+                // throws an exception
+                btSocket.connect();
+                Log.d(TAG, "Connected to: " + btDevice.getName() + " " + btDevice.getAddress());
                 MainActivity.this.runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
                         Toast.makeText(MainActivity.this,
                                 getResources().getString(R.string.toast_connectedTo) +
-                                        " " + mmDevice.getName() + " " + mmDevice.getAddress(),
+                                        " " + btDevice.getName() + " " + btDevice.getAddress(),
                                 Toast.LENGTH_LONG).show();
 
                     }
                 });
             } catch (IOException connectException) {
-                // Unable to connect; close the socket and get out
+                // Unable to connect
                 Log.d(TAG, "Unable to connect to the iTPMSystem...");
                 try {
-                    mmSocket.close();
+                    btSocket.close();
                 } catch (IOException closeException) {
                     Log.d(TAG,"Unable to close socket during connection failure");
                 }
@@ -687,14 +685,14 @@ public class MainActivity extends ActionBarActivity {
             }
 
             // Do work to manage the connection (in a separate thread)
-            ConnectedThread mConnectedThread = new ConnectedThread(mmSocket);
-            mConnectedThread.start();
+            ConnectedThread btConnectedThread = new ConnectedThread(btSocket);
+            btConnectedThread.start();
         }
 
         // Cancel an in-progress connection, and close the socket
         public void cancel() {
             try {
-                mmSocket.close();
+                btSocket.close();
             } catch (IOException e) {
                 Log.d(TAG, "Unable to close Bluetooth socket");
             }
@@ -703,34 +701,33 @@ public class MainActivity extends ActionBarActivity {
 
     // Connected bluetooth thread
     private class ConnectedThread extends Thread {
-        private final InputStream mmInStream;
+        private final InputStream btInStream;
 
         public ConnectedThread(BluetoothSocket socket) {
             InputStream tmpInput = null;
 
-            // Get the input stream, using temp objects because
-            // member streams are final
+            // Get the input stream, using temp objects because member streams are final
             try {
                 tmpInput = socket.getInputStream();
             } catch (IOException e) {
                 Log.d(TAG, "IO Exception getting input stream");
             }
-            mmInStream = tmpInput;
+            btInStream = tmpInput;
         }
 
         public void run() {
-            byte[] buffer = new byte[256];  // buffer store for the stream
-            int bytes; // bytes returned from read()
+            byte[] buffer = new byte[256];  // Buffer store for the stream
+            int bytes; // Bytes returned from read()
 
             // Keep listening to the InputStream until an exception occurs
             while (true) {
                 try {
                     // Read from the InputStream
-                    bytes = mmInStream.read(buffer);		// Get number of bytes and message in "buffer"
-                    h.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
+                    bytes = btInStream.read(buffer); // Get number of bytes and message in "buffer"
+                    sensorMessages.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
                 } catch (IOException e) {
                     Log.d(TAG, "IO Exception while reading stream");
-                    mConnectThread.cancel();
+                    btConnectThread.cancel();
                     break;
                 }
             }
@@ -796,17 +793,17 @@ public class MainActivity extends ActionBarActivity {
                 int delay = (Integer.parseInt(sharedPrefs.getString("prefAutoNightModeDelay", "30")) * 1000);
                 if(event.sensor.getType()==Sensor.TYPE_LIGHT){
                     float currentReading = event.values[0];
-                    // TODO: Proper light value for night & should I be using a timer instead of waiting for a sensor change?
-                    if (currentReading < 20.0){
+                    double darkThreshold = 20.0;  // Light level to determine darkness
+                    if (currentReading < darkThreshold){
                         lightTimer = 0;
                         if (darkTimer == 0){
                             darkTimer = System.currentTimeMillis();
                         } else {
                             long currentTime = System.currentTimeMillis();
                             long duration = (currentTime - darkTimer);
-                            if ((duration >= delay) && (!itsDark)){ // divide be 1000 for secs
+                            if ((duration >= delay) && (!itsDark)){
                                 itsDark = true;
-                                Log.d(TAG,"Its night");
+                                Log.d(TAG,"Its dark");
                                 // Redraw Screen
                                 final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
                                 final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
@@ -831,11 +828,6 @@ public class MainActivity extends ActionBarActivity {
                                 txtRearTemperature.setTextColor(getResources().getColor(android.R.color.white));
                                 txtRearVoltage.setTextColor(getResources().getColor(android.R.color.white));
                                 txtOutput.setTextColor(getResources().getColor(android.R.color.white));
-
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                    getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
-                                }
-
                             }
                         }
                     } else {
@@ -847,7 +839,7 @@ public class MainActivity extends ActionBarActivity {
                             long duration = (currentTime - lightTimer);
                             if ((duration >= delay) && (itsDark)){
                                 itsDark = false;
-                                Log.d(TAG,"Its day");
+                                Log.d(TAG,"Its light");
                                 // Redraw Screen
                                 final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
                                 final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
@@ -871,17 +863,11 @@ public class MainActivity extends ActionBarActivity {
                                 txtRearTemperature.setTextColor(getResources().getColor(android.R.color.black));
                                 txtRearVoltage.setTextColor(getResources().getColor(android.R.color.black));
                                 txtOutput.setTextColor(getResources().getColor(android.R.color.black));
-
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                    getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
-                                }
                             }
                         }
                     }
                 }
-
             }
         }
-
     };
 }

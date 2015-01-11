@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+<resources>
     <!--
        Base application theme, dependent on API level. This theme is replaced
        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
@@ -11,14 +11,8 @@
             backward-compatibility can go here.
         -->
     </style>
-    <style name="MyActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="android:background"  tools:ignore="NewApi">@color/primary</item>
-        <item name="background">@color/primary</item>
-    </style>
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
-        <item name="android:actionBarStyle"   tools:ignore="NewApi">@style/MyActionBar</item>
-        <item name="actionBarStyle">@style/MyActionBar</item>
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 </resources>

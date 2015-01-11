@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">iTPMS</string>
-    <string name="app_icon_desc">iTPMS icon</string>
-
-    <string name="front_wheel_desc">Front Wheel</string>
-    <string name="back_wheel_desc">Back Wheel</string>
 
     <string name="action_settings">Settings</string>
     <string name="action_sensorReset">Reset Sensor IDs</string>
@@ -37,7 +33,6 @@
     <string name="pref_autoNightMode_summary">Enable Auto Night Mode</string>
     <string name="pref_autoNightModeDelay_name">Auto Night Mode Delay In Seconds</string>
     <string name="pref_autoNightModeDelay_summary">Set Auto Night Mode Delay In Seconds</string>
-
     <string name="notification_settings_title">Notification Settings</string>
     <string name="pref_sound_name">Sound</string>
     <string name="pref_sound_summary">Notification Sound</string>
@@ -47,7 +42,6 @@
     <string name="pref_notificationVibrate_summary">Enable Vibration</string>
     <string name="pref_notificationLED_name">LED</string>
     <string name="pref_notificationLED_summary">Enable LED</string>
-
     <string name="front_wheel_settings_title">Front Wheel Settings</string>
     <string name="rear_wheel_settings_title">Rear Wheel Settings</string>
     <string name="pref_id_name">Wheel Sensor ID</string>
@@ -56,7 +50,6 @@
     <string name="pref_low_pressure_summary">Low Pressure Alert Threshold</string>
     <string name="pref_high_pressure_name">High Pressure</string>
     <string name="pref_high_pressure_summary">High Pressure Alert Threshold</string>
-
     <string name="advanced_settings_title">Advanced Settings</string>
     <string name="pref_dataLogging_name">Data Logging</string>
     <string name="pref_dataLogging_summary">Enable Data Logging To /sdcard/itpms/</string>
