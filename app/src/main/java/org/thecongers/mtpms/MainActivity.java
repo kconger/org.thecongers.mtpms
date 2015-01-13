@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.thecongers.itpms;
+package org.thecongers.mtpms;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -83,7 +83,7 @@ public class MainActivity extends ActionBarActivity {
     private BluetoothAdapter btAdapter = null;
     // SPP UUID service
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    private static final String TAG = "iTPMS";
+    private static final String TAG = "mTPMS";
     private final int RECEIVE_MESSAGE = 1;		// Status for Handler
     private static final int SETTINGS_RESULT = 1;
     private String address;
@@ -104,6 +104,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        setTitle(R.string.app_name);
+
         txtFrontPressure = (TextView) findViewById(R.id.txtFrontPressure);
         txtFrontTemperature = (TextView) findViewById(R.id.txtFrontTemperature);
         txtFrontVoltage = (TextView) findViewById(R.id.txtFrontVoltage);
@@ -406,6 +408,7 @@ public class MainActivity extends ActionBarActivity {
         }
         // Try to connect to iTPMSystem
         btConnect();
+
     }
 
     // Called when screen rotates or size changes
@@ -724,7 +727,7 @@ public class MainActivity extends ActionBarActivity {
                 try {
                     // Read from the InputStream
                     bytes = btInStream.read(buffer); // Get number of bytes and message in "buffer"
-                    sensorMessages.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
+                    sensorMessages.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget(); // Send to message queue Handler
                 } catch (IOException e) {
                     Log.d(TAG, "IO Exception while reading stream");
                     btConnectThread.cancel();

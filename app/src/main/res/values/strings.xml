@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">iTPMS</string>
-
+    <string name="app_name">Motorcycle TPMS</string>
+    <string name="app_shortName">mTPMS</string>
+    <!-- Menu items -->
     <string name="action_settings">Settings</string>
     <string name="action_sensorReset">Reset Sensor IDs</string>
     <string name="action_exit">Exit</string>
-
+    <!-- Preference strings -->
     <string name="ui_title">User Interface</string>
     <string name="pref_tempf_name">Temperature Unit</string>
     <string-array name="tempf_array">
@@ -52,16 +53,16 @@
     <string name="pref_high_pressure_summary">High Pressure Alert Threshold</string>
     <string name="advanced_settings_title">Advanced Settings</string>
     <string name="pref_dataLogging_name">Data Logging</string>
-    <string name="pref_dataLogging_summary">Enable Data Logging To /sdcard/itpms/</string>
-
+    <string name="pref_dataLogging_summary">Enable Data Logging To /sdcard/mTPMS/</string>
+    <!-- Setup message alert dialog -->
     <string name="alert_setup_title">Setup Instructions</string>
     <string name="alert_setup_message">You will need to first pair your device to the iTPMSystem.\n\nOnce connected the sensors should be discovered in about a minute.\n\nAfter which you will need to map the sensors to wheel locations.</string>
     <string name="alert_setup_button">OK</string>
-
+    <!-- Toast messages -->
     <string name="toast_newSensor">New sensor discovered:</string>
     <string name="toast_noPaired">No previously paired iTPMSystem found</string>
     <string name="toast_connectedTo">Connected to:</string>
-
+    <!-- Pressure alert messages -->
     <string name="alert_lowFrontPressure">Low front tire pressure!</string>
     <string name="alert_highFrontPressure">High front tire pressure!</string>
     <string name="alert_lowRearPressure">Low rear tire pressure!</string>

@@ -1,9 +1,9 @@
-iTPMS
+Motorcycle TPMS
 Author: Keith Conger <keith.conger@gmail.com>
-http://itpms.thecongers.org
+http://development.thecongers.org/home/mtpms
 License: GPLv2
 
-Motorcycle iTPMS Client Software
+Motorcycle iTPMSystem Client Software
 
 Requires:
 * An iTPMSystem (http://www.atbs.com.tw/product_TPMS_Module_E.htm)

@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.thecongers.itpms;
+package org.thecongers.mtpms;
 
 import android.os.Environment;
 import android.util.Log;
@@ -33,12 +33,12 @@ import java.util.TimeZone;
 
 class LogData {
     private static PrintWriter outFile = null;
-    private static final String TAG = "iTPMS_Log";
+    private static final String TAG = "mTPMS_Log";
 
     private static void initialize()
     {
         try {
-            File root = new File(Environment.getExternalStorageDirectory() + "/itpms/");
+            File root = new File(Environment.getExternalStorageDirectory() + "/mTPMS/");
             if(!root.exists()) {
                 if(!root.mkdirs()){
                     Log.d(TAG,"Unable to create directory: " + root);
@@ -54,7 +54,7 @@ class LogData {
                 formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
                 String curdatetime = formatter.format(date);
 
-                File logFile = new File( root, "iTPMS-" + curdatetime + ".csv" );
+                File logFile = new File( root, "mTPMS-" + curdatetime + ".csv" );
                 FileWriter logWriter = new FileWriter( logFile );
                 outFile = new PrintWriter( logWriter );
                 outFile.write( "Date(UTC),Wheel,Pressure(psi),Temperature(Celsius),Voltage\n" );

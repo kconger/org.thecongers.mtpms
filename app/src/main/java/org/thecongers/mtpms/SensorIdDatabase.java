@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.thecongers.itpms;
+package org.thecongers.mtpms;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -28,7 +28,7 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 
 class SensorIdDatabase extends SQLiteAssetHelper {
-    private static final String TAG = "iTPMS_DB";
+    private static final String TAG = "mTPMS_DB";
     private static final String DATABASE_NAME = "discoveredSensorID.db";
     private static final int DATABASE_VERSION = 1;
 
