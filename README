@@ -8,17 +8,18 @@ Motorcycle iTPMSystem Client Software
 Requires:
 * An iTPMSystem (http://www.atbs.com.tw/product_TPMS_Module_E.htm)
 
-Current Features:
+Current features:
 * Displays tire pressure, temperature and voltage
 * User configurable units for pressure and temperature
 * User configurable notifications for low/high tire pressure (Sound, vibrate and LED)
 * Auto night mode(dark color scheme) using the light sensor
 * Sensor discovery
+* Screen rotation
 * Runs in the background
 * Optional data logging in csv format to /sdcard/mtpms
 * English language, please contact me if you would like to help with a translation
 
-Howto Use:
+How to use:
 1) Power on the iTPMSystem
 2) Pair your device to the iTPMSystem unit, test with the Vendor supplied app and close it.  If it doesn't work then this app probably won't either.
 3) Launch iTPMSystem, you should see message that you are connected.  You now need to wait for the sensors to start sending data through the iTPMSystem.
@@ -33,7 +34,8 @@ SVG TPMS Icon sourced from:
 http://commons.m.wikimedia.org/wiki/File:TPMS_warning_icon.svg
 
 Donate
-If you find any of this usefull and want to show appreciation see below:
+If you find any of this useful and want to show appreciation see below:
 
+Play Store: https://play.google.com/store/apps/details?id=org.thecongers.mtpms
 PayPal: keith.conger@gmail.com
 Bitcoin: 1Pg54vVnaLxNsziA6cy9CTefoEG5iAm9Uh
