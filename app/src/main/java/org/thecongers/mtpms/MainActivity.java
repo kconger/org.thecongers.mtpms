@@ -764,7 +764,7 @@ public class MainActivity extends ActionBarActivity {
         }
         Notification notification = builder.build();
         // Check for vibration enabled
-        if (sharedPrefs.getBoolean("prefNotificationVibrate", true)) {
+        if (sharedPrefs.getBoolean("prefNotificationVibrate", false)) {
             notification.defaults|= Notification.DEFAULT_VIBRATE;
         }
         // Make alert repeat until read

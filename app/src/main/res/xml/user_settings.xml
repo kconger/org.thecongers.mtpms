@@ -44,7 +44,7 @@
             android:title="@string/pref_notificationSound_name" >
         </CheckBoxPreference>
         <CheckBoxPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="prefNotificationVibrate"
             android:summary="@string/pref_notificationVibrate_summary"
             android:title="@string/pref_notificationVibrate_name" >
