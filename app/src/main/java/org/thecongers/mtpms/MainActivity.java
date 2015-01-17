@@ -262,11 +262,8 @@ public class MainActivity extends ActionBarActivity {
                                             logger.write("front", String.valueOf(psi), String.valueOf(tempC), String.valueOf(voltage));
                                         }
                                         final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
-                                        int notificationID = 0;
                                         if (psi <= fLowPressure) {
                                             frontStatus = 1;
-                                            // Send notification
-                                            Notify(TAG, getResources().getString(R.string.alert_lowFrontPressure), notificationID);
                                             // Set background to red
                                             if (itsDark){
                                                 layoutFront.setBackground(redBackgroundDark);
@@ -275,8 +272,6 @@ public class MainActivity extends ActionBarActivity {
                                             }
                                         } else if (psi >= fHighPressure) {
                                             frontStatus = 2;
-                                            // Send notification
-                                            Notify(TAG, getResources().getString(R.string.alert_highFrontPressure), notificationID);
                                             // Set background to red
                                             if (itsDark){
                                                 layoutFront.setBackground(redBackgroundDark);
@@ -285,9 +280,6 @@ public class MainActivity extends ActionBarActivity {
                                             }
                                         } else {
                                             frontStatus = 0;
-                                            if (notificationManager != null) {
-                                                notificationManager.cancel(notificationID);
-                                            }
                                             // Reset background
                                             if (itsDark){
                                                 layoutFront.setBackground(backgroundDark);
@@ -310,11 +302,8 @@ public class MainActivity extends ActionBarActivity {
                                             logger.write("rear", String.valueOf(psi), String.valueOf(tempC), String.valueOf(voltage));
                                         }
                                         final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
-                                        int notificationID = 1;
                                         if (psi <= rLowPressure) {
                                             rearStatus = 1;
-                                            // Send notification
-                                            Notify(TAG, getResources().getString(R.string.alert_lowRearPressure), notificationID);
                                             // Set background to red
                                             if (itsDark){
                                                 layoutRear.setBackground(redBackgroundDark);
@@ -322,9 +311,6 @@ public class MainActivity extends ActionBarActivity {
                                                 layoutRear.setBackground(redBackground);
                                             }
                                         } else if (psi >= rHighPressure) {
-                                            rearStatus = 2;
-                                            // Send notification
-                                            Notify(TAG, getResources().getString(R.string.alert_highRearPressure), notificationID);
                                             // Set background to red
                                             if (itsDark){
                                                 layoutRear.setBackground(redBackgroundDark);
@@ -333,9 +319,6 @@ public class MainActivity extends ActionBarActivity {
                                             }
                                         } else {
                                             rearStatus = 0;
-                                            if (notificationManager != null) {
-                                                notificationManager.cancel(notificationID);
-                                            }
                                             // Reset background
                                             if (itsDark){
                                                 layoutRear.setBackground(backgroundDark);
@@ -347,25 +330,36 @@ public class MainActivity extends ActionBarActivity {
                                         txtRearTemperature.setText(String.valueOf(formattedTemperature) + " " + temperatureUnit);
                                         txtRearVoltage.setText(String.format("%.2f", voltage) + " V");
                                     }
-                                    // Update txtOutput box
+                                    // Update txtOutput box and send notification
                                     if ((frontStatus == 0) && (rearStatus == 0)){
                                         txtOutput.setText("");
+                                        if (notificationManager != null ){
+                                            notificationManager.cancel(0);
+                                        }
                                     } else if ((frontStatus == 1) && (rearStatus == 0)){
                                         txtOutput.setText(getResources().getString(R.string.alert_lowFrontPressure));
+                                        Notify(getResources().getString(R.string.alert_lowFrontPressure));
                                     } else if ((frontStatus == 2) && (rearStatus == 0)){
                                         txtOutput.setText(getResources().getString(R.string.alert_highFrontPressure));
+                                        Notify(getResources().getString(R.string.alert_highFrontPressure));
                                     } else if ((rearStatus == 1) && (frontStatus == 0)){
                                         txtOutput.setText(getResources().getString(R.string.alert_lowRearPressure));
+                                        Notify(getResources().getString(R.string.alert_lowRearPressure));
                                     } else if ((rearStatus == 2) && (frontStatus == 0)){
                                         txtOutput.setText(getResources().getString(R.string.alert_highRearPressure));
+                                        Notify(getResources().getString(R.string.alert_highRearPressure));
                                     } else if ((frontStatus == 1) && (rearStatus == 1)){
                                         txtOutput.setText(getResources().getString(R.string.alert_lowFrontLowRearPressure));
+                                        Notify(getResources().getString(R.string.alert_lowFrontLowRearPressure));
                                     } else if ((frontStatus == 2) && (rearStatus == 2)){
                                         txtOutput.setText(getResources().getString(R.string.alert_highFrontHighRearPressure));
+                                        Notify(getResources().getString(R.string.alert_highFrontHighRearPressure));
                                     } else if ((frontStatus == 1) && (rearStatus == 2)){
                                         txtOutput.setText(getResources().getString(R.string.alert_lowFrontHighRearPressure));
+                                        Notify(getResources().getString(R.string.alert_lowFrontHighRearPressure));
                                     } else if ((frontStatus == 2) && (rearStatus == 1)){
                                         txtOutput.setText(getResources().getString(R.string.alert_highFrontLowRearPressure));
+                                        Notify(getResources().getString(R.string.alert_highFrontLowRearPressure));
                                     }
                                     if (!itsDark) {
                                         txtOutput.setBackground(txtOutBackground);
@@ -738,7 +732,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     //Send Notification
-    private void Notify(String notificationTitle, String notificationMessage, int notificationID)
+    private void Notify(String notificationMessage)
     {
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
@@ -753,7 +747,7 @@ public class MainActivity extends ActionBarActivity {
         Uri soundURI = Uri.parse(alertURI);
         // Build notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setContentTitle(notificationTitle)
+        builder.setContentTitle(getResources().getString(R.string.app_shortName))
                 .setContentText(notificationMessage)
                 .setSmallIcon(R.drawable.notification_icon)
                 .setAutoCancel(false)
@@ -777,7 +771,7 @@ public class MainActivity extends ActionBarActivity {
         notification.flags |= Notification.FLAG_INSISTENT;
 
         // Send notification
-        notificationManager.notify(notificationID, notification);
+        notificationManager.notify(0, notification);
     }
 
     // Listens for light sensor events
