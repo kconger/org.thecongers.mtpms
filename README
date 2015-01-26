@@ -16,7 +16,7 @@ Current features:
 * Sensor discovery
 * Screen rotation
 * Runs in the background
-* Optional data logging in csv format to /sdcard/mtpms
+* Optional data logging in csv format to /sdcard/mTPMS
 * English language, please contact me if you would like to help with a translation
 
 How to use:

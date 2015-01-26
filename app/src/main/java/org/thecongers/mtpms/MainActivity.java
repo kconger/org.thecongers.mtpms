@@ -53,8 +53,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.UUID;
@@ -512,6 +514,14 @@ public class MainActivity extends ActionBarActivity {
                 settings.edit().remove("prefFrontID").apply();
                 settings.edit().remove("prefRearID").apply();
                 return true;
+            case R.id.action_about:
+                // About was selected
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(getResources().getString(R.string.alert_about_title));
+                builder.setMessage(readRawTextFile(this, R.raw.about));
+                builder.setPositiveButton(getResources().getString(R.string.alert_about_button), null);
+                builder.show();
+                return true;
             case R.id.action_exit:
                 // Exit menu item was selected
                 if (logger != null){
@@ -729,6 +739,27 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         }
+    }
+
+    // Read raw text file
+    private static String readRawTextFile(Context ctx, int resId)
+    {
+        InputStream inputStream = ctx.getResources().openRawResource(resId);
+
+        InputStreamReader inputreader = new InputStreamReader(inputStream);
+        BufferedReader buffreader = new BufferedReader(inputreader);
+        String line;
+        StringBuilder text = new StringBuilder();
+
+        try {
+            while (( line = buffreader.readLine()) != null) {
+                text.append(line);
+                text.append('\n');
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return text.toString();
     }
 
     //Send Notification
