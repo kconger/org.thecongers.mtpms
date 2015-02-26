@@ -60,7 +60,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.UUID;
- 
+
 public class MainActivity extends ActionBarActivity {
 
     private SharedPreferences sharedPrefs;
@@ -183,201 +183,207 @@ public class MainActivity extends ActionBarActivity {
                         // Check to see if message is the correct size
                         if (msg.arg1 == 13) {
                             byte[] readBuf = (byte[]) msg.obj;
-                            // Convert to hex
-                            String[] hexData = new String[13];
-                            StringBuilder sbhex = new StringBuilder();
-                            for (int i = 0; i < msg.arg1; i++) {
-                                hexData[i] = String.format("%02X", readBuf[i]);
-                                sbhex.append(hexData[i]);
-                            }
-                            // Get sensor position
-                            String position = hexData[3];
-                            // Get sensor ID
-                            StringBuilder sensorID = new StringBuilder();
-                            sensorID.append(hexData[4]);
-                            sensorID.append(hexData[5]);
-                            sensorID.append(hexData[6]);
-                            sensorID.append(hexData[7]);
 
-                            // Check if sensor ID is new
-                            boolean checkID = sensorDB.sensorIdExists(sensorID.toString());
-                            if (!checkID) {
-                                // Add sensor ID to db
-                                sensorDB.addID(sensorID.toString());
-                                Toast.makeText(MainActivity.this,
-                                        getResources().getString(R.string.toast_newSensor) + " " + sensorID.toString(),
-                                        Toast.LENGTH_LONG).show();
-                            }
-                            // Only parse message if there is one or more sensor mappings
-                            String prefFrontID = sharedPrefs.getString("prefFrontID", "");
-                            String prefRearID = sharedPrefs.getString("prefRearID", "");
-                            if (!prefFrontID.equals("") || !prefRearID.equals("")) {
-                                try {
-                                    // Get temperature
-                                    int tempC = Integer.parseInt(hexData[8], 16) - 50;
-                                    double temp = tempC;
-                                    String temperatureUnit = "C";
-                                    // Get tire pressure
-                                    int psi = Integer.parseInt(hexData[9], 16);
-                                    double pressure = psi;
-                                    String pressureUnit = "psi";
-                                    // Get battery voltage
-                                    double voltage = Integer.parseInt(hexData[10], 16) / 50;
-                                    // Get pressure thresholds
-                                    int fLowPressure = Integer.parseInt(sharedPrefs.getString("prefFrontLowPressure", "30"));
-                                    int fHighPressure = Integer.parseInt(sharedPrefs.getString("prefFrontHighPressure", "46"));
-                                    int rLowPressure = Integer.parseInt(sharedPrefs.getString("prefRearLowPressure", "30"));
-                                    int rHighPressure = Integer.parseInt(sharedPrefs.getString("prefRearHighPressure", "46"));
-                                    if (sharedPrefs.getString("preftempf", "0").contains("0")) {
-                                        // F
-                                        temp = (9.0 / 5.0) * tempC + 32.0;
-                                        temperatureUnit = "F";
-                                    }
-                                    int formattedTemperature = (int) (temp + 0.5d);
-                                    String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
-                                    if (pressureFormat.contains("1")) {
-                                        // KPa
-                                        pressure = psi * 6.894757293168361;
-                                        pressureUnit = "KPa";
-                                    } else if (pressureFormat.contains("2")) {
-                                        // Kg-f
-                                        pressure = psi * 0.070306957965539;
-                                        pressureUnit = "Kg-f";
-                                    } else if (pressureFormat.contains("3")) {
-                                        // Bar
-                                        pressure = psi * 0.0689475729;
-                                        pressureUnit = "Bar";
-                                    }
-                                    int formattedPressure = (int) (pressure + 0.5d);
-                                    // Get checksum
-                                    String checksum = hexData[11];
-                                    Log.d(TAG, "Sensor ID: " + sensorID.toString() + ", Sensor Position: " + position + ", Temperature(" + temperatureUnit + "): " + String.valueOf(temp) + ", Pressure(" + pressureUnit + "): " + String.valueOf(pressure) + ", Voltage: " + String.valueOf(voltage) + ", Checksum: " + checksum + ", Data: " + sbhex.toString() + ", Bytes:" + msg.arg1);
+                            // Validate against checksum
+                            int calculatedCheckSum = readBuf[4] + readBuf[5] + readBuf[6] + readBuf[7] + readBuf[8] + readBuf[9] + readBuf[10];
+                            if (calculatedCheckSum == readBuf[11]){
+                                // Convert to hex
+                                String[] hexData = new String[13];
+                                StringBuilder sbhex = new StringBuilder();
+                                for (int i = 0; i < msg.arg1; i++) {
+                                    hexData[i] = String.format("%02X", readBuf[i]);
+                                    sbhex.append(hexData[i]);
+                                }
 
-                                    if (sensorID.toString().equals(prefFrontID)) {
-                                        Log.d(TAG, "Front ID matched");
-                                        // Check for data logging enabled
-                                        if (sharedPrefs.getBoolean("prefDataLogging", false)) {
-                                            // Log data
-                                            if (logger == null) {
-                                                logger = new LogData();
-                                            }
-                                            logger.write("front", String.valueOf(psi), String.valueOf(tempC), String.valueOf(voltage));
+                                // Get sensor position
+                                String position = hexData[3];
+                                // Get sensor ID
+                                StringBuilder sensorID = new StringBuilder();
+                                sensorID.append(hexData[4]);
+                                sensorID.append(hexData[5]);
+                                sensorID.append(hexData[6]);
+                                sensorID.append(hexData[7]);
+
+                                // Check if sensor ID is new
+                                boolean checkID = sensorDB.sensorIdExists(sensorID.toString());
+                                if (!checkID) {
+                                    // Add sensor ID to db
+                                    sensorDB.addID(sensorID.toString());
+                                    Toast.makeText(MainActivity.this,
+                                            getResources().getString(R.string.toast_newSensor) + " " + sensorID.toString(),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                                // Only parse message if there is one or more sensor mappings
+                                String prefFrontID = sharedPrefs.getString("prefFrontID", "");
+                                String prefRearID = sharedPrefs.getString("prefRearID", "");
+                                if (!prefFrontID.equals("") || !prefRearID.equals("")) {
+                                    try {
+                                        // Get temperature
+                                        int tempC = Integer.parseInt(hexData[8], 16) - 50;
+                                        double temp = tempC;
+                                        String temperatureUnit = "C";
+                                        // Get tire pressure
+                                        int psi = Integer.parseInt(hexData[9], 16);
+                                        double pressure = psi;
+                                        String pressureUnit = "psi";
+                                        // Get battery voltage
+                                        double voltage = Integer.parseInt(hexData[10], 16) / 50;
+                                        // Get pressure thresholds
+                                        int fLowPressure = Integer.parseInt(sharedPrefs.getString("prefFrontLowPressure", "30"));
+                                        int fHighPressure = Integer.parseInt(sharedPrefs.getString("prefFrontHighPressure", "46"));
+                                        int rLowPressure = Integer.parseInt(sharedPrefs.getString("prefRearLowPressure", "30"));
+                                        int rHighPressure = Integer.parseInt(sharedPrefs.getString("prefRearHighPressure", "46"));
+                                        if (sharedPrefs.getString("preftempf", "0").contains("0")) {
+                                            // F
+                                            temp = (9.0 / 5.0) * tempC + 32.0;
+                                            temperatureUnit = "F";
                                         }
-                                        final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
-                                        if (psi <= fLowPressure) {
-                                            frontStatus = 1;
-                                            // Set background to red
-                                            if (itsDark){
-                                                layoutFront.setBackground(redBackgroundDark);
-                                            } else {
-                                                layoutFront.setBackground(redBackground);
+                                        int formattedTemperature = (int) (temp + 0.5d);
+                                        String pressureFormat = sharedPrefs.getString("prefpressuref", "0");
+                                        if (pressureFormat.contains("1")) {
+                                            // KPa
+                                            pressure = psi * 6.894757293168361;
+                                            pressureUnit = "KPa";
+                                        } else if (pressureFormat.contains("2")) {
+                                            // Kg-f
+                                            pressure = psi * 0.070306957965539;
+                                            pressureUnit = "Kg-f";
+                                        } else if (pressureFormat.contains("3")) {
+                                            // Bar
+                                            pressure = psi * 0.0689475729;
+                                            pressureUnit = "Bar";
+                                        }
+                                        int formattedPressure = (int) (pressure + 0.5d);
+                                        // Get checksum
+                                        String checksum = hexData[11];
+                                        Log.d(TAG, "Sensor ID: " + sensorID.toString() + ", Sensor Position: " + position + ", Temperature(" + temperatureUnit + "): " + String.valueOf(temp) + ", Pressure(" + pressureUnit + "): " + String.valueOf(pressure) + ", Voltage: " + String.valueOf(voltage) + ", Checksum: " + checksum + ", Data: " + sbhex.toString() + ", Bytes:" + msg.arg1);
+
+                                        if (sensorID.toString().equals(prefFrontID)) {
+                                            Log.d(TAG, "Front ID matched");
+                                            // Check for data logging enabled
+                                            if (sharedPrefs.getBoolean("prefDataLogging", false)) {
+                                                // Log data
+                                                if (logger == null) {
+                                                    logger = new LogData();
+                                                }
+                                                logger.write("front", String.valueOf(psi), String.valueOf(tempC), String.valueOf(voltage));
                                             }
-                                        } else if (psi >= fHighPressure) {
-                                            frontStatus = 2;
-                                            // Set background to red
-                                            if (itsDark){
-                                                layoutFront.setBackground(redBackgroundDark);
+                                            final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
+                                            if (psi <= fLowPressure) {
+                                                frontStatus = 1;
+                                                // Set background to red
+                                                if (itsDark){
+                                                    layoutFront.setBackground(redBackgroundDark);
+                                                } else {
+                                                    layoutFront.setBackground(redBackground);
+                                                }
+                                            } else if (psi >= fHighPressure) {
+                                                frontStatus = 2;
+                                                // Set background to red
+                                                if (itsDark){
+                                                    layoutFront.setBackground(redBackgroundDark);
+                                                } else {
+                                                    layoutFront.setBackground(redBackground);
+                                                }
                                             } else {
-                                                layoutFront.setBackground(redBackground);
+                                                frontStatus = 0;
+                                                // Reset background
+                                                if (itsDark){
+                                                    layoutFront.setBackground(backgroundDark);
+                                                } else {
+                                                    layoutFront.setBackground(background);
+                                                }
                                             }
+
+                                            txtFrontPressure.setText(String.valueOf(formattedPressure) + " " + pressureUnit);
+                                            txtFrontTemperature.setText(String.valueOf(formattedTemperature) + " " + temperatureUnit);
+                                            txtFrontVoltage.setText(String.format("%.2f", voltage) + " V");
+                                        } else if (sensorID.toString().equals(prefRearID)) {
+                                            Log.d(TAG, "Rear ID matched");
+                                            // Check for data logging enabled
+                                            if (sharedPrefs.getBoolean("prefDataLogging", false)) {
+                                                // Log data
+                                                if (logger == null) {
+                                                    logger = new LogData();
+                                                }
+                                                logger.write("rear", String.valueOf(psi), String.valueOf(tempC), String.valueOf(voltage));
+                                            }
+                                            final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
+                                            if (psi <= rLowPressure) {
+                                                rearStatus = 1;
+                                                // Set background to red
+                                                if (itsDark){
+                                                    layoutRear.setBackground(redBackgroundDark);
+                                                } else {
+                                                    layoutRear.setBackground(redBackground);
+                                                }
+                                            } else if (psi >= rHighPressure) {
+                                                // Set background to red
+                                                if (itsDark){
+                                                    layoutRear.setBackground(redBackgroundDark);
+                                                } else {
+                                                    layoutRear.setBackground(redBackground);
+                                                }
+                                            } else {
+                                                rearStatus = 0;
+                                                // Reset background
+                                                if (itsDark){
+                                                    layoutRear.setBackground(backgroundDark);
+                                                } else {
+                                                    layoutRear.setBackground(background);
+                                                }
+                                            }
+                                            txtRearPressure.setText(String.valueOf(formattedPressure) + " " + pressureUnit);
+                                            txtRearTemperature.setText(String.valueOf(formattedTemperature) + " " + temperatureUnit);
+                                            txtRearVoltage.setText(String.format("%.2f", voltage) + " V");
+                                        }
+                                        // Update txtOutput box and send notification
+                                        if ((frontStatus == 0) && (rearStatus == 0)){
+                                            txtOutput.setText("");
+                                            if (notificationManager != null ){
+                                                notificationManager.cancel(0);
+                                            }
+                                        } else if ((frontStatus == 1) && (rearStatus == 0)){
+                                            txtOutput.setText(getResources().getString(R.string.alert_lowFrontPressure));
+                                            Notify(getResources().getString(R.string.alert_lowFrontPressure));
+                                        } else if ((frontStatus == 2) && (rearStatus == 0)){
+                                            txtOutput.setText(getResources().getString(R.string.alert_highFrontPressure));
+                                            Notify(getResources().getString(R.string.alert_highFrontPressure));
+                                        } else if ((rearStatus == 1) && (frontStatus == 0)){
+                                            txtOutput.setText(getResources().getString(R.string.alert_lowRearPressure));
+                                            Notify(getResources().getString(R.string.alert_lowRearPressure));
+                                        } else if ((rearStatus == 2) && (frontStatus == 0)){
+                                            txtOutput.setText(getResources().getString(R.string.alert_highRearPressure));
+                                            Notify(getResources().getString(R.string.alert_highRearPressure));
+                                        } else if ((frontStatus == 1) && (rearStatus == 1)){
+                                            txtOutput.setText(getResources().getString(R.string.alert_lowFrontLowRearPressure));
+                                            Notify(getResources().getString(R.string.alert_lowFrontLowRearPressure));
+                                        } else if ((frontStatus == 2) && (rearStatus == 2)){
+                                            txtOutput.setText(getResources().getString(R.string.alert_highFrontHighRearPressure));
+                                            Notify(getResources().getString(R.string.alert_highFrontHighRearPressure));
+                                        } else if ((frontStatus == 1) && (rearStatus == 2)){
+                                            txtOutput.setText(getResources().getString(R.string.alert_lowFrontHighRearPressure));
+                                            Notify(getResources().getString(R.string.alert_lowFrontHighRearPressure));
+                                        } else if ((frontStatus == 2) && (rearStatus == 1)){
+                                            txtOutput.setText(getResources().getString(R.string.alert_highFrontLowRearPressure));
+                                            Notify(getResources().getString(R.string.alert_highFrontLowRearPressure));
+                                        }
+                                        if (!itsDark) {
+                                            txtOutput.setBackground(txtOutBackground);
+                                            txtOutput.setTextColor(getResources().getColor(android.R.color.black));
+                                            txtRearPressure.setTextColor(getResources().getColor(android.R.color.black));
+                                            txtRearTemperature.setTextColor(getResources().getColor(android.R.color.black));
+                                            txtRearVoltage.setTextColor(getResources().getColor(android.R.color.black));
                                         } else {
-                                            frontStatus = 0;
-                                            // Reset background
-                                            if (itsDark){
-                                                layoutFront.setBackground(backgroundDark);
-                                            } else {
-                                                layoutFront.setBackground(background);
-                                            }
+                                            txtOutput.setBackground(txtOutBackgroundDark);
+                                            txtOutput.setTextColor(getResources().getColor(android.R.color.white));
+                                            txtRearPressure.setTextColor(getResources().getColor(android.R.color.white));
+                                            txtRearTemperature.setTextColor(getResources().getColor(android.R.color.white));
+                                            txtRearVoltage.setTextColor(getResources().getColor(android.R.color.white));
                                         }
-
-                                        txtFrontPressure.setText(String.valueOf(formattedPressure) + " " + pressureUnit);
-                                        txtFrontTemperature.setText(String.valueOf(formattedTemperature) + " " + temperatureUnit);
-                                        txtFrontVoltage.setText(String.format("%.2f", voltage) + " V");
-                                    } else if (sensorID.toString().equals(prefRearID)) {
-                                        Log.d(TAG, "Rear ID matched");
-                                        // Check for data logging enabled
-                                        if (sharedPrefs.getBoolean("prefDataLogging", false)) {
-                                            // Log data
-                                            if (logger == null) {
-                                                logger = new LogData();
-                                            }
-                                            logger.write("rear", String.valueOf(psi), String.valueOf(tempC), String.valueOf(voltage));
-                                        }
-                                        final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
-                                        if (psi <= rLowPressure) {
-                                            rearStatus = 1;
-                                            // Set background to red
-                                            if (itsDark){
-                                                layoutRear.setBackground(redBackgroundDark);
-                                            } else {
-                                                layoutRear.setBackground(redBackground);
-                                            }
-                                        } else if (psi >= rHighPressure) {
-                                            // Set background to red
-                                            if (itsDark){
-                                                layoutRear.setBackground(redBackgroundDark);
-                                            } else {
-                                                layoutRear.setBackground(redBackground);
-                                            }
-                                        } else {
-                                            rearStatus = 0;
-                                            // Reset background
-                                            if (itsDark){
-                                                layoutRear.setBackground(backgroundDark);
-                                            } else {
-                                                layoutRear.setBackground(background);
-                                            }
-                                        }
-                                        txtRearPressure.setText(String.valueOf(formattedPressure) + " " + pressureUnit);
-                                        txtRearTemperature.setText(String.valueOf(formattedTemperature) + " " + temperatureUnit);
-                                        txtRearVoltage.setText(String.format("%.2f", voltage) + " V");
+                                    } catch (NumberFormatException e) {
+                                        Log.d(TAG, "Malformed message, unexpected value");
                                     }
-                                    // Update txtOutput box and send notification
-                                    if ((frontStatus == 0) && (rearStatus == 0)){
-                                        txtOutput.setText("");
-                                        if (notificationManager != null ){
-                                            notificationManager.cancel(0);
-                                        }
-                                    } else if ((frontStatus == 1) && (rearStatus == 0)){
-                                        txtOutput.setText(getResources().getString(R.string.alert_lowFrontPressure));
-                                        Notify(getResources().getString(R.string.alert_lowFrontPressure));
-                                    } else if ((frontStatus == 2) && (rearStatus == 0)){
-                                        txtOutput.setText(getResources().getString(R.string.alert_highFrontPressure));
-                                        Notify(getResources().getString(R.string.alert_highFrontPressure));
-                                    } else if ((rearStatus == 1) && (frontStatus == 0)){
-                                        txtOutput.setText(getResources().getString(R.string.alert_lowRearPressure));
-                                        Notify(getResources().getString(R.string.alert_lowRearPressure));
-                                    } else if ((rearStatus == 2) && (frontStatus == 0)){
-                                        txtOutput.setText(getResources().getString(R.string.alert_highRearPressure));
-                                        Notify(getResources().getString(R.string.alert_highRearPressure));
-                                    } else if ((frontStatus == 1) && (rearStatus == 1)){
-                                        txtOutput.setText(getResources().getString(R.string.alert_lowFrontLowRearPressure));
-                                        Notify(getResources().getString(R.string.alert_lowFrontLowRearPressure));
-                                    } else if ((frontStatus == 2) && (rearStatus == 2)){
-                                        txtOutput.setText(getResources().getString(R.string.alert_highFrontHighRearPressure));
-                                        Notify(getResources().getString(R.string.alert_highFrontHighRearPressure));
-                                    } else if ((frontStatus == 1) && (rearStatus == 2)){
-                                        txtOutput.setText(getResources().getString(R.string.alert_lowFrontHighRearPressure));
-                                        Notify(getResources().getString(R.string.alert_lowFrontHighRearPressure));
-                                    } else if ((frontStatus == 2) && (rearStatus == 1)){
-                                        txtOutput.setText(getResources().getString(R.string.alert_highFrontLowRearPressure));
-                                        Notify(getResources().getString(R.string.alert_highFrontLowRearPressure));
-                                    }
-                                    if (!itsDark) {
-                                        txtOutput.setBackground(txtOutBackground);
-                                        txtOutput.setTextColor(getResources().getColor(android.R.color.black));
-                                        txtRearPressure.setTextColor(getResources().getColor(android.R.color.black));
-                                        txtRearTemperature.setTextColor(getResources().getColor(android.R.color.black));
-                                        txtRearVoltage.setTextColor(getResources().getColor(android.R.color.black));
-                                    } else {
-                                        txtOutput.setBackground(txtOutBackgroundDark);
-                                        txtOutput.setTextColor(getResources().getColor(android.R.color.white));
-                                        txtRearPressure.setTextColor(getResources().getColor(android.R.color.white));
-                                        txtRearTemperature.setTextColor(getResources().getColor(android.R.color.white));
-                                        txtRearVoltage.setTextColor(getResources().getColor(android.R.color.white));
-                                    }
-                                } catch (NumberFormatException e) {
-                                    Log.d(TAG, "Malformed message, unexpected value");
                                 }
                             }
                         } else {
