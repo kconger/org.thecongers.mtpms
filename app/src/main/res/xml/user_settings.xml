@@ -17,11 +17,20 @@
             />
         <CheckBoxPreference
             android:defaultValue="false"
+            android:disableDependentsState="true"
+            android:key="prefNightMode"
+            android:summary="@string/pref_nightMode_summary"
+            android:title="@string/pref_nightMode_name" >
+        </CheckBoxPreference>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:dependency="prefNightMode"
             android:key="prefAutoNightMode"
             android:summary="@string/pref_autoNightMode_summary"
             android:title="@string/pref_autoNightMode_name" >
         </CheckBoxPreference>
         <EditTextPreference
+            android:dependency="prefNightMode"
             android:title="@string/pref_autoNightModeDelay_name"
             android:summary="@string/pref_autoNightModeDelay_summary"
             android:defaultValue="30"

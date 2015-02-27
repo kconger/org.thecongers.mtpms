@@ -31,8 +31,10 @@
         <item name="3">2</item>
         <item name="4">3</item>
     </string-array>
+    <string name="pref_nightMode_name">Night Mode</string>
+    <string name="pref_nightMode_summary">Enable Night Mode, Disables Auto Night Mode</string>
     <string name="pref_autoNightMode_name">Auto Night Mode</string>
-    <string name="pref_autoNightMode_summary">Enable Auto Night Mode</string>
+    <string name="pref_autoNightMode_summary">Enable Auto Night Mode (Requires light sensor)</string>
     <string name="pref_autoNightModeDelay_name">Auto Night Mode Delay In Seconds</string>
     <string name="pref_autoNightModeDelay_summary">Set Auto Night Mode Delay In Seconds</string>
     <string name="notification_settings_title">Notification Settings</string>

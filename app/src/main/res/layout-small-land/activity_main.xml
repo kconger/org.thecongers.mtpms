@@ -123,7 +123,7 @@
         android:elevation="2dp"
         android:background="@drawable/rectangle"
         android:textAlignment="center"
-        android:text="Front wheel tire pressure is low!"
+        android:text=""
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp" />
 </LinearLayout>

@@ -41,6 +41,10 @@ public class UserSettingActivity extends PreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.user_settings);
 
+            // Disable auto night mode option when no sensor is found
+            if (!MainActivity.hasSensor){
+                getPreferenceScreen().findPreference("prefAutoNightMode").setEnabled(false);
+            }
             // Dynamically populate sensorID lists
             final ListPreference listFrontIDPreference = (ListPreference) findPreference("prefFrontID");
             final ListPreference listRearIDPreference = (ListPreference) findPreference("prefRearID");

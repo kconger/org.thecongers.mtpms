@@ -94,7 +94,7 @@ public class MainActivity extends ActionBarActivity {
     private boolean itsDark = false;
     private long darkTimer = 0;
     private long lightTimer = 0;
-
+    static boolean hasSensor = false;
     static SensorIdDatabase sensorDB;
     private LogData logger = null;
     private Handler sensorMessages;
@@ -406,11 +406,18 @@ public class MainActivity extends ActionBarActivity {
             sensorManager.registerListener(lightSensorEventListener,
                     lightSensor,
                     SensorManager.SENSOR_DELAY_NORMAL);
+            hasSensor = true;
             Log.d(TAG,"Light Sensor Max Value: " + max);
         }
         // Try to connect to iTPMSystem
         btConnect();
+    }
 
+    @Override
+    protected void onStop()
+    {
+        unregisterReceiver(btReceiver);
+        super.onStop();
     }
 
     // Called when screen rotates or size changes
@@ -557,6 +564,10 @@ public class MainActivity extends ActionBarActivity {
         // Shutdown Logger
         if (!sharedPrefs.getBoolean("prefDataLogging", false) && (logger != null)) {
             logger.shutdown();
+        }
+        // Update dark mode
+        if (sharedPrefs.getBoolean("prefNightMode", false)){
+            itsDark = true;
         }
     }
 
@@ -823,7 +834,7 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onSensorChanged(SensorEvent event) {
-            if (sharedPrefs.getBoolean("prefAutoNightMode", false)) {
+            if (sharedPrefs.getBoolean("prefAutoNightMode", false) && (!sharedPrefs.getBoolean("prefNightMode", false))) {
                 int delay = (Integer.parseInt(sharedPrefs.getString("prefAutoNightModeDelay", "30")) * 1000);
                 if(event.sensor.getType()==Sensor.TYPE_LIGHT){
                     float currentReading = event.values[0];
