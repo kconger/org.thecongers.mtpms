@@ -416,7 +416,11 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onStop()
     {
-        unregisterReceiver(btReceiver);
+        try {
+            unregisterReceiver(btReceiver);
+        } catch (IllegalArgumentException e){
+            Log.d(TAG, "Receiver not registered");
+        }
         super.onStop();
     }
 
