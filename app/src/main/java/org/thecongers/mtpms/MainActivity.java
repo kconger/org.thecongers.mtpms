@@ -41,6 +41,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
@@ -67,6 +68,8 @@ public class MainActivity extends ActionBarActivity {
     private NotificationManager notificationManager;
 
     private View root;
+    private LinearLayout layoutFront;
+    private LinearLayout layoutRear;
     private TextView txtOutput;
     private TextView txtFrontPressure;
     private TextView txtFrontTemperature;
@@ -97,8 +100,8 @@ public class MainActivity extends ActionBarActivity {
     static boolean hasSensor = false;
     static SensorIdDatabase sensorDB;
     private LogData logger = null;
-    private Handler sensorMessages;
     private ConnectThread btConnectThread;
+    private Handler handler;
 
     @SuppressLint("HandlerLeak")
     @Override
@@ -108,6 +111,8 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         setTitle(R.string.app_name);
 
+        layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
+        layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
         txtFrontPressure = (TextView) findViewById(R.id.txtFrontPressure);
         txtFrontTemperature = (TextView) findViewById(R.id.txtFrontTemperature);
         txtFrontVoltage = (TextView) findViewById(R.id.txtFrontVoltage);
@@ -166,16 +171,42 @@ public class MainActivity extends ActionBarActivity {
         txtRearPressure.setText("--- " + pressureUnit);
         txtRearTemperature.setText("--- " + temperatureUnit);
         txtRearVoltage.setText("--- V");
-        txtOutput.setBackground(txtOutBackground);
-        txtOutput.setTextColor(getResources().getColor(android.R.color.black));
+
+        // Set initial color scheme
+        if (!sharedPrefs.getBoolean("prefNightMode", false)) {
+            root.setBackgroundColor(getResources().getColor(android.R.color.white));
+            layoutFront.setBackground(background);
+            layoutRear.setBackground(background);
+            txtFrontPressure.setTextColor(getResources().getColor(android.R.color.black));
+            txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.black));
+            txtFrontVoltage.setTextColor(getResources().getColor(android.R.color.black));
+            txtRearPressure.setTextColor(getResources().getColor(android.R.color.black));
+            txtRearTemperature.setTextColor(getResources().getColor(android.R.color.black));
+            txtRearVoltage.setTextColor(getResources().getColor(android.R.color.black));
+            txtOutput.setBackground(txtOutBackground);
+            txtOutput.setTextColor(getResources().getColor(android.R.color.black));
+        } else {
+            root.setBackgroundColor(getResources().getColor(android.R.color.black));
+            layoutFront.setBackground(backgroundDark);
+            layoutRear.setBackground(backgroundDark);
+            txtFrontPressure.setTextColor(getResources().getColor(android.R.color.white));
+            txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.white));
+            txtFrontVoltage.setTextColor(getResources().getColor(android.R.color.white));
+            txtRearPressure.setTextColor(getResources().getColor(android.R.color.white));
+            txtRearTemperature.setTextColor(getResources().getColor(android.R.color.white));
+            txtRearVoltage.setTextColor(getResources().getColor(android.R.color.white));
+            txtOutput.setBackground(txtOutBackgroundDark);
+            txtOutput.setTextColor(getResources().getColor(android.R.color.white));
+        }
 
         // Check if there are sensor to wheel mappings
         if (sharedPrefs.getString("prefFrontID", "").equals("") && sharedPrefs.getString("prefRearID", "").equals("")) {
             new AlertDialog.Builder(this).setTitle(R.string.alert_setup_title).setMessage(R.string.alert_setup_message).setNeutralButton(R.string.alert_setup_button, null).show();
         }
 
-        sensorMessages = new Handler() {
-            public void handleMessage(android.os.Message msg) {
+        IStaticHandler sensorMessages = new IStaticHandler() {
+            @Override
+            public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case RECEIVE_MESSAGE:
                         // Message received
@@ -268,31 +299,14 @@ public class MainActivity extends ActionBarActivity {
                                                 }
                                                 logger.write("front", String.valueOf(psi), String.valueOf(tempC), String.valueOf(voltage));
                                             }
-                                            final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
+
+                                            // Set front tire status
                                             if (psi <= fLowPressure) {
                                                 frontStatus = 1;
-                                                // Set background to red
-                                                if (itsDark){
-                                                    layoutFront.setBackground(redBackgroundDark);
-                                                } else {
-                                                    layoutFront.setBackground(redBackground);
-                                                }
                                             } else if (psi >= fHighPressure) {
                                                 frontStatus = 2;
-                                                // Set background to red
-                                                if (itsDark){
-                                                    layoutFront.setBackground(redBackgroundDark);
-                                                } else {
-                                                    layoutFront.setBackground(redBackground);
-                                                }
                                             } else {
                                                 frontStatus = 0;
-                                                // Reset background
-                                                if (itsDark){
-                                                    layoutFront.setBackground(backgroundDark);
-                                                } else {
-                                                    layoutFront.setBackground(background);
-                                                }
                                             }
 
                                             txtFrontPressure.setText(String.valueOf(formattedPressure) + " " + pressureUnit);
@@ -308,30 +322,14 @@ public class MainActivity extends ActionBarActivity {
                                                 }
                                                 logger.write("rear", String.valueOf(psi), String.valueOf(tempC), String.valueOf(voltage));
                                             }
-                                            final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
+
+                                            // Set rear tire status
                                             if (psi <= rLowPressure) {
                                                 rearStatus = 1;
-                                                // Set background to red
-                                                if (itsDark){
-                                                    layoutRear.setBackground(redBackgroundDark);
-                                                } else {
-                                                    layoutRear.setBackground(redBackground);
-                                                }
                                             } else if (psi >= rHighPressure) {
-                                                // Set background to red
-                                                if (itsDark){
-                                                    layoutRear.setBackground(redBackgroundDark);
-                                                } else {
-                                                    layoutRear.setBackground(redBackground);
-                                                }
+                                                rearStatus = 2;
                                             } else {
                                                 rearStatus = 0;
-                                                // Reset background
-                                                if (itsDark){
-                                                    layoutRear.setBackground(backgroundDark);
-                                                } else {
-                                                    layoutRear.setBackground(background);
-                                                }
                                             }
                                             txtRearPressure.setText(String.valueOf(formattedPressure) + " " + pressureUnit);
                                             txtRearTemperature.setText(String.valueOf(formattedTemperature) + " " + temperatureUnit);
@@ -368,15 +366,44 @@ public class MainActivity extends ActionBarActivity {
                                             txtOutput.setText(getResources().getString(R.string.alert_highFrontLowRearPressure));
                                             Notify(getResources().getString(R.string.alert_highFrontLowRearPressure));
                                         }
-                                        if (!itsDark) {
+                                        // Update color scheme
+                                        if ((!itsDark) && (!sharedPrefs.getBoolean("prefNightMode", false))) {
+                                            if (frontStatus == 0){
+                                                layoutFront.setBackground(background);
+                                            } else {
+                                                layoutFront.setBackground(redBackground);
+                                            }
+                                            if (rearStatus == 0){
+                                                layoutRear.setBackground(background);
+                                            } else {
+                                                layoutRear.setBackground(redBackground);
+                                            }
+                                            root.setBackgroundColor(getResources().getColor(android.R.color.white));
                                             txtOutput.setBackground(txtOutBackground);
                                             txtOutput.setTextColor(getResources().getColor(android.R.color.black));
+                                            txtFrontPressure.setTextColor(getResources().getColor(android.R.color.black));
+                                            txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.black));
+                                            txtFrontVoltage.setTextColor(getResources().getColor(android.R.color.black));
                                             txtRearPressure.setTextColor(getResources().getColor(android.R.color.black));
                                             txtRearTemperature.setTextColor(getResources().getColor(android.R.color.black));
                                             txtRearVoltage.setTextColor(getResources().getColor(android.R.color.black));
                                         } else {
+                                            if (frontStatus == 0){
+                                                layoutFront.setBackground(backgroundDark);
+                                            } else {
+                                                layoutFront.setBackground(redBackgroundDark);
+                                            }
+                                            if (rearStatus == 0){
+                                                layoutRear.setBackground(backgroundDark);
+                                            } else {
+                                                layoutRear.setBackground(redBackgroundDark);
+                                            }
+                                            root.setBackgroundColor(getResources().getColor(android.R.color.black));
                                             txtOutput.setBackground(txtOutBackgroundDark);
                                             txtOutput.setTextColor(getResources().getColor(android.R.color.white));
+                                            txtFrontPressure.setTextColor(getResources().getColor(android.R.color.white));
+                                            txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.white));
+                                            txtFrontVoltage.setTextColor(getResources().getColor(android.R.color.white));
                                             txtRearPressure.setTextColor(getResources().getColor(android.R.color.white));
                                             txtRearTemperature.setTextColor(getResources().getColor(android.R.color.white));
                                             txtRearVoltage.setTextColor(getResources().getColor(android.R.color.white));
@@ -393,6 +420,7 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         };
+        handler = StaticHandlerFactory.create(sensorMessages);
         // Light Sensor Stuff
         SensorManager sensorManager
                 = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
@@ -431,8 +459,8 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         // Redraw Screen
-        final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
-        final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
+        layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
+        layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
         // Restore Text
         CharSequence currentTxtFrontPressure = txtFrontPressure.getText();
         txtFrontPressure = (TextView) findViewById(R.id.txtFrontPressure);
@@ -463,7 +491,7 @@ public class MainActivity extends ActionBarActivity {
         txtOutput.setText(currentTxt);
 
         // Restore Colors
-        if (!itsDark){
+        if ((!itsDark) && (!sharedPrefs.getBoolean("prefNightMode", false))){
             if (frontStatus > 0) {
                 layoutFront.setBackground(redBackground);
             } else {
@@ -474,6 +502,7 @@ public class MainActivity extends ActionBarActivity {
             } else {
                 layoutRear.setBackground(background);
             }
+            root.setBackgroundColor(getResources().getColor(android.R.color.white));
             txtOutput.setBackground(txtOutBackground);
             txtFrontPressure.setTextColor(getResources().getColor(android.R.color.black));
             txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.black));
@@ -494,6 +523,7 @@ public class MainActivity extends ActionBarActivity {
             } else {
                 layoutRear.setBackground(backgroundDark);
             }
+            root.setBackgroundColor(getResources().getColor(android.R.color.black));
             txtOutput.setBackground(txtOutBackgroundDark);
             txtFrontPressure.setTextColor(getResources().getColor(android.R.color.white));
             txtFrontTemperature.setTextColor(getResources().getColor(android.R.color.white));
@@ -568,10 +598,6 @@ public class MainActivity extends ActionBarActivity {
         // Shutdown Logger
         if (!sharedPrefs.getBoolean("prefDataLogging", false) && (logger != null)) {
             logger.shutdown();
-        }
-        // Update dark mode
-        if (sharedPrefs.getBoolean("prefNightMode", false)){
-            itsDark = true;
         }
     }
 
@@ -752,7 +778,8 @@ public class MainActivity extends ActionBarActivity {
                 try {
                     // Read from the InputStream
                     bytes = btInStream.read(buffer); // Get number of bytes and message in "buffer"
-                    sensorMessages.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget(); // Send to message queue Handler
+
+                    handler.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget(); // Send to message queue Handler
                 } catch (IOException e) {
                     Log.d(TAG, "IO Exception while reading stream");
                     btConnectThread.cancel();
@@ -854,8 +881,8 @@ public class MainActivity extends ActionBarActivity {
                                 itsDark = true;
                                 Log.d(TAG,"Its dark");
                                 // Redraw Screen
-                                final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
-                                final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
+                                layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
+                                layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
 
                                 root.setBackgroundColor(getResources().getColor(android.R.color.black));
 
@@ -890,8 +917,8 @@ public class MainActivity extends ActionBarActivity {
                                 itsDark = false;
                                 Log.d(TAG,"Its light");
                                 // Redraw Screen
-                                final LinearLayout  layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
-                                final LinearLayout  layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
+                                layoutFront = (LinearLayout) findViewById(R.id.layoutFront);
+                                layoutRear = (LinearLayout) findViewById(R.id.layoutRear);
 
                                 root.setBackgroundColor(getResources().getColor(android.R.color.white));
                                 if (frontStatus > 0) {
