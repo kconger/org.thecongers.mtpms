@@ -100,8 +100,8 @@ public class MainActivity extends ActionBarActivity {
     static boolean hasSensor = false;
     static SensorIdDatabase sensorDB;
     private LogData logger = null;
+    private Handler sensorMessages;
     private ConnectThread btConnectThread;
-    private Handler handler;
 
     @SuppressLint("HandlerLeak")
     @Override
@@ -204,8 +204,7 @@ public class MainActivity extends ActionBarActivity {
             new AlertDialog.Builder(this).setTitle(R.string.alert_setup_title).setMessage(R.string.alert_setup_message).setNeutralButton(R.string.alert_setup_button, null).show();
         }
 
-        IStaticHandler sensorMessages = new IStaticHandler() {
-            @Override
+        sensorMessages = new Handler() {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case RECEIVE_MESSAGE:
@@ -420,7 +419,6 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         };
-        handler = StaticHandlerFactory.create(sensorMessages);
         // Light Sensor Stuff
         SensorManager sensorManager
                 = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
@@ -778,8 +776,7 @@ public class MainActivity extends ActionBarActivity {
                 try {
                     // Read from the InputStream
                     bytes = btInStream.read(buffer); // Get number of bytes and message in "buffer"
-
-                    handler.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget(); // Send to message queue Handler
+                    sensorMessages.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget(); // Send to message queue Handler
                 } catch (IOException e) {
                     Log.d(TAG, "IO Exception while reading stream");
                     btConnectThread.cancel();

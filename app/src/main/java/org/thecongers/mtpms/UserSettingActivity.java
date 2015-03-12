@@ -44,6 +44,7 @@ public class UserSettingActivity extends PreferenceActivity {
             // Disable auto night mode option when no sensor is found
             if (!MainActivity.hasSensor){
                 getPreferenceScreen().findPreference("prefAutoNightMode").setEnabled(false);
+                getPreferenceScreen().findPreference("prefAutoNightModeDelay").setEnabled(false);
             }
             // Dynamically populate sensorID lists
             final ListPreference listFrontIDPreference = (ListPreference) findPreference("prefFrontID");
