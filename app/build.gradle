@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 25
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "org.thecongers.mtpms"
         minSdkVersion 16
-        targetSdkVersion 21
+        targetSdkVersion 25
     }
 
     buildTypes {
@@ -23,6 +23,6 @@ repositories{
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:21.+'
+    compile 'com.android.support:appcompat-v7:25.+'
     compile 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
 }
